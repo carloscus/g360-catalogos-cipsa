@@ -22,7 +22,6 @@
     #book { box-shadow: 0 25px 80px rgba(0,0,0,0.6); max-height: calc(100vh - 140px); }
     .page-content { width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 2px; }
     .page-content img { width: 100%; height: 100%; object-fit: contain; }
-    .loading-page { background: rgba(30,40,50,0.9); color: var(--text-secondary); padding: 20px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .thumbnails-btn { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--catalog-accent); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px var(--catalog-glow); z-index: 200; transition: all 0.2s; }
     .thumbnails-btn:hover { transform: scale(1.1); }
     .thumbnails-panel { position: fixed; bottom: 90px; right: 24px; width: 340px; max-height: 420px; background: rgba(22,27,34,0.97); backdrop-filter: blur(16px); border: 1px solid rgba(139,148,158,0.2); border-radius: 16px; padding: 16px; z-index: 200; display: none; overflow-y: auto; }
@@ -103,45 +102,30 @@
       const bookEl = document.getElementById('book');
       let startPage = PAGE_PARAM ? parseInt(PAGE_PARAM) - 1 : 0;
       if (startPage < 0) startPage = 0;
-
       const settings = FLIPBOOK_CONFIG[CURRENT_THEME] || FLIPBOOK_CONFIG.vinifan;
-
-      // Import StPageFlip
       const module = await import('https://cdn.jsdelivr.net/npm/page-flip@2.0.33/dist/page-flip.browser.js');
       const PageFlip = module.default || module.St?.PageFlip;
-
       pageFlip = new PageFlip(bookEl, settings);
-
-      // Generate image URLs
       const imageUrls = [];
       for (let i = 1; i <= CONFIG.total_pages; i++) {
         imageUrls.push(`../images/${CURRENT_THEME}/page_${String(i).padStart(3, '0')}.jpg`);
       }
-
       pageFlip.loadFromImages(imageUrls);
-
-      if (startPage > 0) {
-        pageFlip.turnToPage(startPage);
-      }
-
+      if (startPage > 0) pageFlip.turnToPage(startPage);
       pageFlip.on('flip', (e) => {
         pageCounter.textContent = `${e.data + 1}/${CONFIG.total_pages}`;
         audioSystem.play('flip');
         updateThumbnails();
       });
-
       pageFlip.on('init', (e) => {
         pageCounter.textContent = `${e.data + 1}/${CONFIG.total_pages}`;
       });
-
       btnPrev.addEventListener('click', () => { pageFlip.flipPrev(); audioSystem.play('flip'); });
       btnNext.addEventListener('click', () => { pageFlip.flipNext(); audioSystem.play('flip'); });
-
       document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') pageFlip.flipPrev();
         if (e.key === 'ArrowRight') pageFlip.flipNext();
       });
-
       updateThumbnails();
     }
 
@@ -150,20 +134,17 @@
       const currentPage = pageFlip.getCurrentPageIndex() + 1;
       const blockSize = 4;
       const totalBlocks = Math.ceil(CONFIG.total_pages / blockSize);
-
       for (let b = 0; b < totalBlocks; b++) {
         const start = b * blockSize + 1;
         const end = Math.min(start + blockSize - 1, CONFIG.total_pages);
         const thumb = document.createElement('div');
         thumb.className = 'thumb-item';
         if (currentPage >= start && currentPage <= end) thumb.classList.add('active');
-        
         const thumbImg = document.createElement('img');
         thumbImg.src = `../images/${CURRENT_THEME}/page_${String(start).padStart(3, '0')}.jpg`;
         thumbImg.alt = `Páginas ${start}-${end}`;
         thumbImg.loading = 'lazy';
         thumb.appendChild(thumbImg);
-        
         thumb.addEventListener('click', () => {
           audioSystem.play('jump');
           pageFlip.turnToPage(start - 1);

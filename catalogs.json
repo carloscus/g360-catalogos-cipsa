@@ -1,46 +1,46 @@
 {
-  "anio": 2025,
   "brand": {
-    "logo": "assets/brand/logo-cipsa.svg",
     "favicon": "assets/brand/favicon.ico",
-    "color_primary": "#00d084",
-    "nombre": "CIPSA"
+    "logo": "assets/brand/logo-cipsa.svg",
+    "nombre": "CIPSA",
+    "color_primary": "#00d084"
   },
   "catalogos": [
     {
       "titulo": "VINIFAN",
-      "tema": "vinifan",
       "descripcion": "Catálogo de vinos y licores",
       "archivo": "catalogo-1.pdf",
-      "id": 1
+      "id": 1,
+      "tema": "vinifan"
     },
     {
       "titulo": "VINIBALL",
-      "tema": "viniball",
       "descripcion": "Pelotas y artículos deportivos",
       "archivo": "catalogo-2.pdf",
-      "id": 2
-    },
-    {
-      "titulo": "INDUSTRIALES",
-      "tema": "industriales",
-      "descripcion": "Material industrial y herramientas",
-      "archivo": "catalogo-3.pdf",
-      "id": 3
+      "id": 2,
+      "tema": "viniball"
     },
     {
       "titulo": "REPRESENTADAS",
-      "tema": "representadas",
       "descripcion": "Representaciones y eventos",
-      "archivo": "catalogo-4.pdf",
-      "id": 4
+      "archivo": "catalogo-3.pdf",
+      "id": 3,
+      "tema": "representadas"
     },
     {
       "titulo": "INSTITUCIONAL",
-      "tema": "institucional",
       "descripcion": "Catálogo institucional CIPSA",
+      "archivo": "catalogo-4.pdf",
+      "id": 4,
+      "tema": "institucional"
+    },
+    {
+      "titulo": "INDUSTRIALES",
+      "descripcion": "Material industrial y herramientas",
       "archivo": "catalogo-5.pdf",
-      "id": 5
+      "id": 5,
+      "tema": "industriales"
     }
-  ]
+  ],
+  "anio": 2025
 }

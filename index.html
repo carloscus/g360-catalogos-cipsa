@@ -18,46 +18,36 @@
       </button>
     </div>
   </header>
-
   <section class="hero">
     <h1>Catálogos CIPSA 2025</h1>
     <p>Explora nuestra línea completa de productos</p>
   </section>
-
   <main class="regleta-container">
     <p class="regleta-label">Nuestros Catálogos</p>
-    <div class="regleta" id="regleta">
-      <!-- Cards generadas por JS -->
-    </div>
+    <div class="regleta" id="regleta"></div>
   </main>
-
   <footer class="footer">
     <p>powered by <a href="https://g360.ecosystem" target="_blank">G360</a> &copy; CIPSA 2025</p>
   </footer>
-
   <script type="module">
     import { CATALOGS_CONFIG } from './js/config.js';
     import { audioSystem } from './js/audio.js';
-
     const regleta = document.getElementById('regleta');
     const btnAudio = document.getElementById('btnAudio');
     const audioIcon = document.getElementById('audioIcon');
-
     btnAudio.addEventListener('click', () => {
       const muted = audioSystem.toggleMute();
       audioIcon.textContent = muted ? '🔇' : '🔊';
     });
-
     function createCatalogCard(catId) {
       const config = CATALOGS_CONFIG[catId];
       if (!config) return null;
-
       const card = document.createElement('a');
       card.className = 'catalog-card';
-      card.href = `catalogo-${catId === 'vinifan' ? 1 : catId === 'viniball' ? 2 : catId === 'industriales' ? 3 : catId === 'representadas' ? 4 : 5}.html`;
+      const numMap = { vinifan: 1, viniball: 2, industriales: 5, representadas: 3, institucional: 4 };
+      card.href = `catalogo-${numMap[catId]}.html`;
       card.target = '_blank';
       card.rel = 'noopener';
-
       card.innerHTML = `
         <div class="catalog-card-cover">
           <img src="images/${catId}/cover.jpg" alt="Portada ${config.name}" loading="lazy">
@@ -69,19 +59,12 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             Ver catálogo
           </span>
-        </div>
-      `;
-
+        </div>`;
       card.addEventListener('mouseenter', () => audioSystem.play('hover'));
-
       return card;
     }
-
-    const themes = ['vinifan', 'viniball', 'industriales', 'representadas', 'institucional'];
-    themes.forEach(theme => {
-      const card = createCatalogCard(theme);
-      if (card) regleta.appendChild(card);
-    });
+    const themes = ['vinifan', 'viniball', 'representadas', 'institucional', 'industriales'];
+    themes.forEach(t => { const c = createCatalogCard(t); if (c) regleta.appendChild(c); });
   </script>
 </body>
 </html>
