@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>INSTITUCIONAL - Catálogos CIPSA</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/brand/favicon.svg">
-  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
   <style>
     :root { --catalog-accent: #D4AC0D; --catalog-glow: rgba(212,172,13,0.4); --catalog-gradient: linear-gradient(135deg, #1a1505 0%, #0d1117 50%, #0a0a00 100%); }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,13 +41,13 @@
   <div class="flipbook-wrapper">
     <header class="flipbook-header">
       <div class="flipbook-header-logo">
-        <a href="../index.html"><img src="../assets/brand/logo-cipsa.svg" alt="CIPSA"></a>
+        <a href="index.html"><img src="assets/brand/logo-cipsa.svg" alt="CIPSA"></a>
       </div>
       <div class="flipbook-controls">
         <button class="flipbook-btn" id="btnPrev">← Anterior</button>
         <span class="page-counter" id="pageCounter">-</span>
         <button class="flipbook-btn" id="btnNext">Siguiente →</button>
-        <a href="../index.html" class="flipbook-btn">← Biblioteca</a>
+        <a href="index.html" class="flipbook-btn">← Biblioteca</a>
         <button class="audio-toggle" id="btnAudio" aria-label="Toggle audio">🔊</button>
       </div>
     </header>
@@ -64,8 +64,8 @@
   </div>
 
   <script type="module">
-    import { CATALOGS_CONFIG, FLIPBOOK_CONFIG } from '../js/config.js';
-    import { audioSystem } from '../js/audio.js';
+    import { CATALOGS_CONFIG, FLIPBOOK_CONFIG } from 'js/config.js';
+    import { audioSystem } from 'js/audio.js';
 
     const URL_PARAMS = new URLSearchParams(window.location.search);
     const PAGE_PARAM = URL_PARAMS.get('page');
@@ -108,7 +108,7 @@
       pageFlip = new PageFlip(bookEl, settings);
       const imageUrls = [];
       for (let i = 1; i <= CONFIG.total_pages; i++) {
-        imageUrls.push(`../images/${CURRENT_THEME}/page_${String(i).padStart(3, '0')}.jpg`);
+        imageUrls.push(`images/${CURRENT_THEME}/page_${String(i).padStart(3, '0')}.jpg`);
       }
       pageFlip.loadFromImages(imageUrls);
       if (startPage > 0) pageFlip.turnToPage(startPage);
@@ -141,7 +141,7 @@
         thumb.className = 'thumb-item';
         if (currentPage >= start && currentPage <= end) thumb.classList.add('active');
         const thumbImg = document.createElement('img');
-        thumbImg.src = `../images/${CURRENT_THEME}/page_${String(start).padStart(3, '0')}.jpg`;
+        thumbImg.src = `images/${CURRENT_THEME}/page_${String(start).padStart(3, '0')}.jpg`;
         thumbImg.alt = `Páginas ${start}-${end}`;
         thumbImg.loading = 'lazy';
         thumb.appendChild(thumbImg);
@@ -158,3 +158,4 @@
   </script>
 </body>
 </html>
+
