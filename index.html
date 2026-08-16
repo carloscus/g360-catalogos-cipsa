@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogos CIPSA 2025</title>
+  <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">
+      <img src="assets/brand/logo-cipsa.svg" alt="CIPSA Logo">
+    </div>
+    <div class="header-controls">
+      <button class="btn-control" id="btnAudio" aria-label="Toggle audio">
+        <span id="audioIcon">🔊</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Catálogos CIPSA 2025</h1>
+    <p>Explora nuestra línea completa de productos</p>
+  </section>
+
+  <main class="regleta-container">
+    <p class="regleta-label">Nuestros Catálogos</p>
+    <div class="regleta" id="regleta">
+      <!-- Cards generadas por JS -->
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>powered by <a href="https://g360.ecosystem" target="_blank">G360</a> &copy; CIPSA 2025</p>
+  </footer>
+
+  <script type="module">
+    import { CATALOGS_CONFIG } from './js/config.js';
+    import { audioSystem } from './js/audio.js';
+
+    const regleta = document.getElementById('regleta');
+    const btnAudio = document.getElementById('btnAudio');
+    const audioIcon = document.getElementById('audioIcon');
+
+    btnAudio.addEventListener('click', () => {
+      const muted = audioSystem.toggleMute();
+      audioIcon.textContent = muted ? '🔇' : '🔊';
+    });
+
+    function createCatalogCard(catId) {
+      const config = CATALOGS_CONFIG[catId];
+      if (!config) return null;
+
+      const card = document.createElement('a');
+      card.className = 'catalog-card';
+      card.href = `catalogo-${catId === 'vinifan' ? 1 : catId === 'viniball' ? 2 : catId === 'industriales' ? 3 : catId === 'representadas' ? 4 : 5}.html`;
+      card.target = '_blank';
+      card.rel = 'noopener';
+
+      card.innerHTML = `
+        <div class="catalog-card-cover">
+          <img src="images/${catId}/cover.jpg" alt="Portada ${config.name}" loading="lazy">
+        </div>
+        <div class="catalog-card-info">
+          <h3 class="catalog-card-title">${config.name}</h3>
+          <p class="catalog-card-desc">${config.total_pages} páginas</p>
+          <span class="catalog-card-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ver catálogo
+          </span>
+        </div>
+      `;
+
+      card.addEventListener('mouseenter', () => audioSystem.play('hover'));
+
+      return card;
+    }
+
+    const themes = ['vinifan', 'viniball', 'industriales', 'representadas', 'institucional'];
+    themes.forEach(theme => {
+      const card = createCatalogCard(theme);
+      if (card) regleta.appendChild(card);
+    });
+  </script>
+</body>
+</html>
