@@ -6,6 +6,7 @@
   <title>INDUSTRIALES - Catálogos CIPSA</title>
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
   <style>
     :root { --catalog-accent: #F39C12; --catalog-glow: rgba(243,156,18,0.4); --catalog-gradient: linear-gradient(135deg, #2d200a 0%, #0d1117 50%, #1a1505 100%); }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -98,14 +99,19 @@
       }
     });
 
-    async function buildFlipbook() {
+    function buildFlipbook() {
       const bookEl = document.getElementById('book');
       let startPage = PAGE_PARAM ? parseInt(PAGE_PARAM) - 1 : 0;
       if (startPage < 0) startPage = 0;
-      const settings = FLIPBOOK_CONFIG[CURRENT_THEME] || FLIPBOOK_CONFIG.vinifan;
-      const module = await import('https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js');
-      const PageFlip = module.default || module.St?.PageFlip;
-      pageFlip = new PageFlip(bookEl, settings);
+      const settings = FLIPBOOK_CONFIG[CURRENT_THEME] || FLIPBOOK_CONFIG.industriales;
+
+      const PageFlipConstructor = window.St?.PageFlip;
+      if (!PageFlipConstructor) {
+        console.error('StPageFlip library not loaded');
+        return;
+      }
+
+      pageFlip = new PageFlipConstructor(bookEl, settings);
       const imageUrls = [];
       for (let i = 1; i <= CONFIG.total_pages; i++) {
         imageUrls.push(`images/${CURRENT_THEME}/page_${String(i).padStart(3, '0')}.jpg`);
@@ -131,7 +137,7 @@
 
     function updateThumbnails() {
       thumbsGrid.innerHTML = '';
-      const currentPage = pageFlip.getCurrentPageIndex() + 1;
+      const currentPage = pageFlip ? pageFlip.getCurrentPageIndex() + 1 : 1;
       const blockSize = 4;
       const totalBlocks = Math.ceil(CONFIG.total_pages / blockSize);
       for (let b = 0; b < totalBlocks; b++) {
@@ -147,16 +153,18 @@
         thumb.appendChild(thumbImg);
         thumb.addEventListener('click', () => {
           audioSystem.play('jump');
-          pageFlip.turnToPage(start - 1);
+          if (pageFlip) pageFlip.turnToPage(start - 1);
           thumbsPanel.classList.remove('active');
         });
         thumbsGrid.appendChild(thumb);
       }
     }
 
-    buildFlipbook();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', buildFlipbook);
+    } else {
+      buildFlipbook();
+    }
   </script>
 </body>
 </html>
-
-
