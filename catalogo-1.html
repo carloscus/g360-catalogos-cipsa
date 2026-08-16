@@ -103,7 +103,7 @@
       let startPage = PAGE_PARAM ? parseInt(PAGE_PARAM) - 1 : 0;
       if (startPage < 0) startPage = 0;
       const settings = FLIPBOOK_CONFIG[CURRENT_THEME] || FLIPBOOK_CONFIG.vinifan;
-      const module = await import('https://cdn.jsdelivr.net/npm/page-flip@2.0.33/dist/page-flip.browser.js');
+      const module = await import('https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js');
       const PageFlip = module.default || module.St?.PageFlip;
       pageFlip = new PageFlip(bookEl, settings);
       const imageUrls = [];
@@ -158,4 +158,5 @@
   </script>
 </body>
 </html>
+
 
