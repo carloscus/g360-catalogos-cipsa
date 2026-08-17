@@ -51,6 +51,7 @@
 - **Captura para pedido**: Botón `📷` en la lupa descarga la región ampliada como PNG a 2x (recorte correcto en coordenadas de la imagen nativa) para adjuntarla al pedido
 - **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado; con la lupa activa el arrastre de página se suspende para inspeccionar sin voltear)
 - **Rueda del mouse**: Sin lupa voltea páginas; con lupa activa ajusta el zoom
+- **Zoom de página completa (móvil)**: Pinch (2 dedos) para acercar la página entera, 1 dedo para desplazarla (pan), botones `+`/`-` de la toolbar; al navegar vuelve a 1x. El swipe de 1 dedo sin zoom pasa la página.
 - **Pantalla completa**: Aprovecha todo el viewport (`:fullscreen` elimina márgenes y amplía el libro)
 - **Responsive móvil**: Libro centrado y escalado con `min()` para usar todo el alto disponible; pan táctil en la lupa fijada
 - **Índice / secciones**: Panel `☰` con acceso directo a secciones del catálogo definidas en `config.js`
