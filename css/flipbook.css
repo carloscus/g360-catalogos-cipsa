@@ -78,7 +78,7 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
 .zoom-level-badge { min-width: 34px; text-align: center; color: var(--text-secondary); font-size: 12px; font-weight: 600; user-select: none; }
 .zoom-toolbar-btn { font-size: 18px; font-weight: 700; }
 
-.magnifier { position: fixed; width: 210px; height: 290px; display: none; z-index: 300; background: #10161d; border: 1px solid var(--catalog-accent); border-radius: 14px; overflow: hidden; box-shadow: 0 16px 50px rgba(0,0,0,0.7); pointer-events: auto; }
+.magnifier { position: fixed; width: 180px; height: 250px; display: none; z-index: 300; background: #10161d; border: 1px solid var(--catalog-accent); border-radius: 14px; overflow: hidden; box-shadow: 0 16px 50px rgba(0,0,0,0.7); pointer-events: auto; }
 .magnifier.pinned { border-color: #fff; box-shadow: 0 16px 50px rgba(0,0,0,0.7), 0 0 0 2px var(--catalog-accent); }
 .magnifier-header { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(13,17,23,0.95); border-bottom: 1px solid rgba(139,148,158,0.2); z-index: 2; }
 .magnifier-caption { flex: 1; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
@@ -101,7 +101,7 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
   .thumbnails-panel { width: min(320px, calc(100vw - 24px)); right: 12px; bottom: 160px; max-height: 45vh; }
   .thumbnails-btn { bottom: 14px; right: 14px; width: 46px; height: 46px; }
   .thumbnails-grid { grid-template-columns: repeat(4, 1fr); }
-  .magnifier { width: 180px; height: 250px; }
+  .magnifier { width: 160px; height: 220px; }
   .index-panel { bottom: 160px; width: min(300px, calc(100vw - 24px)); }
   .watermark { bottom: 150px; right: 14px; }
   .watermark img { height: 28px; }
@@ -122,7 +122,7 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
   .flipbook-wrapper:fullscreen #book { max-width: 100vw; max-height: calc(100vh - 60px); }
   .thumbnails-panel { width: calc(100vw - 16px); right: 8px; bottom: 170px; }
   .thumbnails-btn { bottom: 10px; right: 10px; width: 44px; height: 44px; }
-  .magnifier { width: 160px; height: 220px; }
+  .magnifier { width: 140px; height: 190px; }
   .index-panel { bottom: 170px; width: calc(100vw - 16px); }
   .watermark { bottom: 160px; right: 10px; }
   .watermark img { height: 24px; }
