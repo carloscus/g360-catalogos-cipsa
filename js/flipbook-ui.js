@@ -173,7 +173,7 @@ export async function initFlipbook({ theme }) {
   });
 
   /* ── Lupa (magnifier) ── */
-  let magLevelIdx = 1; // default 0.75x
+  let magLevelIdx = 0; // default 0.50x
   let magVisible = false;
   let magFollow = true; // sigue al cursor mientras true
   let magPinned = false; // punto fijo al pin (click en el viewport)

@@ -47,7 +47,7 @@
 - **Slider de navegación**: Barra arrastrable en la toolbar para recorrer páginas
 - **Toolbar inferior**: Acceso rápido a navegación, lupa, miniaturas, pantalla completa y sonido
 - **Pantalla completa**: Botón `⛶` para ver el catálogo a pantalla completa (Fullscreen API)
-- **Lupa de ampliación**: Ventana de inspección amplia centrada sobre el cursor (como lupa física); botón `🔍` o doble click para activar, controles `+`/`-` en la toolbar, rueda del mouse para zoom, click en la ventana para fijar posición (pin) y arrastrar para desplazar el detalle (pan). Al navegar re-sincroniza el recorte con la posición del cursor (o al centro si está fijada)
+- **Lupa de ampliación**: Ventana de inspección compacta (~1/4 de la hoja) con zoom inicial 0.50x; botón `🔍` o doble click para activar, controles `+`/`-` en la toolbar, rueda del mouse para zoom, click en la ventana para fijar posición (pin) y arrastrar para desplazar el detalle (pan). Al navegar re-sincroniza el recorte con la posición del cursor (o al centro si está fijada)
 - **Captura para pedido**: Botón `📷` en la lupa descarga la región ampliada como PNG a 2x (recorte correcto en coordenadas de la imagen nativa) para adjuntarla al pedido
 - **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado; con la lupa activa el arrastre de página se suspende para inspeccionar sin voltear)
 - **Rueda del mouse**: Sin lupa voltea páginas; con lupa activa ajusta el zoom
