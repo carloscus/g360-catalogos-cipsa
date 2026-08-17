@@ -99,7 +99,9 @@ export async function initFlipbook({ theme }) {
     dragStart = { x: e.clientX, y: e.clientY, started: false };
   }, true);
 
+  let lastMouse = null;
   bookEl.addEventListener('mousemove', (e) => {
+    lastMouse = { clientX: e.clientX, clientY: e.clientY };
     if (magnifier && magVisible && magFollow) updateMagnifier(e);
     if (magVisible) return; // con la lupa activa no se arrastra la página
     if (!dragStart) return;
@@ -148,7 +150,10 @@ export async function initFlipbook({ theme }) {
     if (dragOccurred) return;
     const now = Date.now();
     if (now - lastClickTime < DBLCLICK_MS) {
-      toggleMagnifier();
+      // sincronizar el recorte con la posicion del cursor al abrir
+      lastRX = 0.5;
+      lastRY = 0.5;
+      toggleMagnifier(e);
       lastClickTime = 0;
     } else {
       lastClickTime = now;
@@ -220,13 +225,35 @@ export async function initFlipbook({ theme }) {
     if (btnMagnifier) btnMagnifier.classList.remove('active');
   }
 
-  function toggleMagnifier() {
+  function centerMagnifierOn(e) {
+    if (!e) return;
+    // centrar la lupa sobre el cursor (el punto de inspeccion queda al centro)
+    const mx = e.clientX - magnifier.offsetWidth / 2;
+    const my = e.clientY - magnifier.offsetHeight / 2;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const mw = magnifier.offsetWidth;
+    const mh = magnifier.offsetHeight;
+    magnifier.style.left = `${Math.max(0, Math.min(mx, vw - mw))}px`;
+    magnifier.style.top = `${Math.max(0, Math.min(my, vh - mh))}px`;
+  }
+
+  function toggleMagnifier(e) {
     if (magVisible) {
       hideMagnifier();
       return;
     }
     if (pageFlip) loadMagImage(pageFlip.getCurrentPageIndex() + 1);
     showMagnifier();
+    if (e) {
+      centerMagnifierOn(e);
+    } else if (lastMouse) {
+      centerMagnifierOn(lastMouse);
+    } else {
+      // centrar en pantalla si no hay referencia de cursor
+      magnifier.style.left = `${(window.innerWidth - magnifier.offsetWidth) / 2}px`;
+      magnifier.style.top = `${(window.innerHeight - magnifier.offsetHeight) / 2}px`;
+    }
   }
 
   if (btnMagnifier) {
@@ -235,7 +262,6 @@ export async function initFlipbook({ theme }) {
       audioSystem.play('hover');
     });
   }
-
   magZoomIn.addEventListener('click', () => {
     magLevelIdx = Math.min(MAG_LEVELS.length - 1, magLevelIdx + 1);
     setMagLevelText();
@@ -260,6 +286,11 @@ export async function initFlipbook({ theme }) {
     magPinned = !magPinned;
     magFollow = !magPinned;
     magnifier.classList.toggle('pinned', magPinned);
+    if (!magPinned) { // al despinear, volver a seguir al cursor
+      magPan = null;
+      magnifier.classList.remove('panning');
+      if (lastMouse) updateMagnifier(lastMouse);
+    }
   });
 
   // Arrastrar el contenido dentro de la lupa cuando está fijada (pan)
@@ -425,20 +456,22 @@ export async function initFlipbook({ theme }) {
     loadMagImage(pageIdx + 1);
     applyMagnifierZoom(lastRX, lastRY);
 
-    const mx = e.clientX + 16;
-    const my = e.clientY + 16;
+    // centrar la lupa sobre el cursor
+    const mx = e.clientX - magnifier.offsetWidth / 2;
+    const my = e.clientY - magnifier.offsetHeight / 2;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const mw = magnifier.offsetWidth;
     const mh = magnifier.offsetHeight;
-    magnifier.style.left = `${Math.max(0, Math.min(mx, vw - mw - 8))}px`;
-    magnifier.style.top = `${Math.max(0, Math.min(my, vh - mh - 8))}px`;
+    magnifier.style.left = `${Math.max(0, Math.min(mx, vw - mw))}px`;
+    magnifier.style.top = `${Math.max(0, Math.min(my, vh - mh))}px`;
   }
 
   bookEl.addEventListener('mouseenter', () => {
     if (magVisible && magFollow) magnifier.style.display = 'block';
   });
   bookEl.addEventListener('mouseleave', () => {
+    // solo ocultar si sigue al cursor; si esta fijada (pinned) permanece visible
     if (magVisible && magFollow) magnifier.style.display = 'none';
   });
 
@@ -485,7 +518,20 @@ export async function initFlipbook({ theme }) {
       if (!suppressFlipSound) audioSystem.play('flip');
       suppressFlipSound = false;
       updateThumbnails();
-      if (magVisible) loadMagImage(pageFlip.getCurrentPageIndex() + 1);
+      if (magVisible) {
+        if (magFollow && lastMouse) {
+          // sigue al cursor: re-sincronizar con la posicion actual
+          loadMagImage(pageFlip.getCurrentPageIndex() + 1);
+          updateMagnifier(lastMouse);
+        } else {
+          // fijada: resetear al centro de la nueva pagina para no quedar
+          // en una zona arbitraria de la pagina anterior
+          lastRX = 0.5;
+          lastRY = 0.5;
+          loadMagImage(pageFlip.getCurrentPageIndex() + 1);
+          applyMagnifierZoom(lastRX, lastRY);
+        }
+      }
       trackPage(theme, page);
       prefetchNext(page);
     });
