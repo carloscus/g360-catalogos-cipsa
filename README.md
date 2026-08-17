@@ -49,6 +49,12 @@
 - **Pantalla completa**: Botón `⛶` para ver el catálogo a pantalla completa (Fullscreen API)
 - **Lupa de ampliación**: Cuadro flotante arrastrable con imagen de detalle (2800px) nítida; botón `🔍` o doble click para activar, botones `+`/`-` para nivel (0.5x–1x sobre resolución nativa, sin pixelar)
 - **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado para no interferir con la lupa)
+- **Índice / secciones**: Panel `☰` con acceso directo a secciones del catálogo definidas en `config.js`
+- **Compartir página**: Botón `🔗` copia la URL con `?page=N` para enlazar una página exacta
+- **Persistencia de lectura**: Recuerda la última página leída por catálogo (`localStorage`) y continúa ahí
+- **Marca de agua**: Logo CIPSA con año reactivo superpuesto sutilmente
+- **Precarga inteligente**: Prefetch de la página siguiente para navegación más fluida
+- **Analytics preparado**: Capa de eventos (`js/analytics.js`) lista para GA4/GoatCounter; ver sección [Analytics](#analytics)
 - **Título reactivo al año**: El título, hero y footer se actualizan automáticamente con el año calendario (`2026 - 2027`)
 - **Sonidos**: Efectos de audio configurables (flip, hover, jump) con toggle mute
 - **Responsive**: Desktop, tablet y móvil con breakpoints en 1024px, 768px y 480px
@@ -145,6 +151,7 @@ g360-catalogos-CIPSA/
 │   ├── config.js               # Configuración de catálogos y flipbook
 │   ├── audio.js                # Sistema de sonidos Web Audio
 │   ├── year.js                 # Título/hero/footer reactivos al año
+│   ├── analytics.js            # Capa de eventos (GA4/GoatCounter-ready)
 │   └── flipbook-ui.js          # Lógica compartida: nav, zoom, miniaturas
 ├── images/
 │   ├── vinifan/                # Páginas del catálogo VINIFAN
@@ -235,6 +242,32 @@ python tools/generate_pages.py --quality 80
 2. Actualizar `total_pages` en `js/config.js` si cambia la cantidad de páginas
 3. Actualizar las portadas en `images/{tema}/cover.jpg`
 4. Commit y push
+
+---
+
+## Analytics
+
+GitHub Pages sirve solo archivos estáticos (sin backend), por lo que el analytics se ejecuta en el navegador y envía eventos a un servicio externo. El proyecto incluye una **capa de eventos** en `js/analytics.js` lista para conectar:
+
+### Eventos registrados
+
+| Evento | Cuándo |
+|--------|--------|
+| `view` | Al abrir un catálogo |
+| `page_view` | Cada cambio de página |
+| `next` / `prev` | Navegación por botones |
+| `share` | Al compartir una página |
+| `index_jump` | Salto por índice |
+
+### Conectar un proveedor
+
+**Por defecto no envía datos a terceros** (solo consola si activas `?analytics=1`). Para activarlo:
+
+1. En `js/analytics.js` edita `DEFAULT_SERVICE` (`'ga4'` o `'goatcounter'`) y completa el ID/endpoint
+2. O activa por URL: `catalogo-1.html?analytics=1`
+
+**GA4**: carga `gtag.js` en el `<head>` y la capa llama `gtag('event', ...)`.
+**GoatCounter** (gratis, sin cookies): apunta `goatcounterEndpoint` a tu sitio y la capa envía `POST` con `keepalive`.
 
 ---
 

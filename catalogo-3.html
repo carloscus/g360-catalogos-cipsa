@@ -39,6 +39,11 @@
     </div>
   </div>
 
+  <div class="watermark">
+    <img src="assets/brand/logo-cipsa.svg" alt="CIPSA">
+    <span data-year="range">2026 - 2027</span>
+  </div>
+
   <div class="toolbar" id="toolbar">
     <button class="toolbar-btn" id="btnPrev" aria-label="Anterior">←</button>
     <button class="toolbar-btn" id="btnNext" aria-label="Siguiente">→</button>
@@ -48,10 +53,17 @@
       <span class="page-total" id="pageTotal">/ 32</span>
     </div>
     <span class="toolbar-sep"></span>
+    <button class="toolbar-btn" id="btnIndex" aria-label="Índice">☰</button>
     <button class="toolbar-btn" id="btnMagnifier" aria-label="Activar lupa">🔍</button>
     <button class="toolbar-btn" id="thumbsBtn" aria-label="Miniaturas">▦</button>
     <button class="toolbar-btn" id="btnFullscreen" aria-label="Pantalla completa">⛶</button>
+    <button class="toolbar-btn" id="btnShare" aria-label="Compartir página">🔗</button>
     <button class="toolbar-btn" id="btnAudio" aria-label="Sonido">🔊</button>
+  </div>
+
+  <div class="index-panel" id="indexPanel">
+    <h4>Índice</h4>
+    <div id="indexList"></div>
   </div>
 
   <div class="magnifier" id="magnifier" role="dialog" aria-label="Lupa de ampliación">
@@ -78,3 +90,4 @@
   </script>
 </body>
 </html>
+
