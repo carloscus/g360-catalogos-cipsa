@@ -8,7 +8,8 @@ const CATALOGS_CONFIG = {
 
 const FLIPBOOK_DEFAULTS = {
   size: 'fixed', startPage: 0, drawShadow: true, showCover: true,
-  mobileScrollSupport: true, flippingTime: 800, maxShadowOpacity: 0.6
+  mobileScrollSupport: true, flippingTime: 800, maxShadowOpacity: 0.6,
+  disableFlipByClick: true
 };
 
 const FLIPBOOK_DIMS = {

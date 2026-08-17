@@ -42,7 +42,10 @@
 - **Regleta horizontal**: Navegación visual entre catálogos con scroll horizontal
 - **Flipbook interactivo**: Efecto de página voladora con StPageFlip
 - **Detección automática de orientación**: Se adapta a imágenes portrait o landscape
-- **Miniaturas**: Panel emergente para saltar a secciones de páginas
+- **Miniaturas con progreso**: Panel emergente con bloques de páginas y barra de progreso
+- **Salto directo a página**: Input numérico para escribir la página destino + Enter
+- **Zoom completo**: Botones `+`/`-`, doble click para alternar y pinch-to-zoom en móvil
+- **Título reactivo al año**: El título, hero y footer se actualizan automáticamente con el año calendario (`2026 - 2027`)
 - **Sonidos**: Efectos de audio configurables (flip, hover, jump) con toggle mute
 - **Responsive**: Desktop, tablet y móvil con breakpoints en 1024px, 768px y 480px
 - **URLs compartibles**: Cada catálogo tiene URL directa con soporte de página específica (`?page=15`)
@@ -132,10 +135,13 @@ g360-catalogos-CIPSA/
 ├── catalogo-4.html             # INSTITUCIONAL
 ├── catalogo-5.html             # INDUSTRIALES
 ├── css/
-│   └── styles.css              # Estilos globales G360/CIPSA
+│   ├── styles.css              # Estilos globales G360/CIPSA
+│   └── flipbook.css            # Estilos del visor flipbook
 ├── js/
 │   ├── config.js               # Configuración de catálogos y flipbook
-│   └── audio.js                # Sistema de sonidos Web Audio
+│   ├── audio.js                # Sistema de sonidos Web Audio
+│   ├── year.js                 # Título/hero/footer reactivos al año
+│   └── flipbook-ui.js          # Lógica compartida: nav, zoom, miniaturas
 ├── images/
 │   ├── vinifan/                # Páginas del catálogo VINIFAN
 │   │   ├── cover.jpg

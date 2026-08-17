@@ -19,38 +19,11 @@
   <meta name="twitter:image" content="images/representadas/cover.jpg">
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/flipbook.css">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
   <style>
     :root { --catalog-accent: #3498DB; --catalog-glow: rgba(52,152,219,0.4); --catalog-gradient: linear-gradient(135deg, #0a1a2d 0%, #0d1117 50%, #05101a 100%); }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; background: var(--catalog-gradient); color: var(--text-primary); min-height: 100vh; overflow: hidden; }
-    .flipbook-wrapper { background: var(--catalog-gradient); min-height: 100vh; display: flex; flex-direction: column; }
-    .flipbook-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(13,17,23,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(139,148,158,0.2); position: relative; z-index: 100; }
-    .flipbook-header-logo a { text-decoration: none; }
-    .flipbook-header-logo img { height: 32px; width: auto; }
-    .flipbook-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .flipbook-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(139,148,158,0.2); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; text-decoration: none; }
-    .flipbook-btn:hover { background: var(--catalog-accent); color: #000; border-color: var(--catalog-accent); }
-    .page-counter { color: var(--text-secondary); font-size: 14px; min-width: 80px; text-align: center; }
-    .flipbook-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; overflow: hidden; }
-    #book { box-shadow: 0 25px 80px rgba(0,0,0,0.6); max-width: 90vw; max-height: calc(100vh - 140px); }
-    .page-content { width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 2px; }
-    .page-content img { width: 100%; height: 100%; object-fit: contain; }
-    .thumbnails-btn { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--catalog-accent); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px var(--catalog-glow); z-index: 200; transition: all 0.2s; }
-    .thumbnails-btn:hover { transform: scale(1.1); }
-    .thumbnails-panel { position: fixed; bottom: 90px; right: 24px; width: 340px; max-width: calc(100vw - 32px); max-height: 420px; background: rgba(22,27,34,0.97); backdrop-filter: blur(16px); border: 1px solid rgba(139,148,158,0.2); border-radius: 16px; padding: 16px; z-index: 200; display: none; overflow-y: auto; }
-    .thumbnails-panel.active { display: block; }
-    .thumbnails-panel h4 { color: var(--text-primary); margin-bottom: 12px; font-size: 14px; }
-    .thumbnails-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .thumb-item { aspect-ratio: 2/3; background: #1a2332; border-radius: 6px; cursor: pointer; overflow: hidden; border: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-secondary); }
-    .thumb-item:hover { border-color: var(--catalog-accent); }
-    .thumb-item.active { border-color: var(--catalog-accent); background: var(--catalog-accent); color: #000; }
-    .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
-    .audio-toggle { background: rgba(255,255,255,0.08); border: 1px solid rgba(139,148,158,0.2); color: var(--text-secondary); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.2s; }
-    .audio-toggle:hover { border-color: var(--catalog-accent); color: var(--catalog-accent); }
-    @media (max-width: 768px) { .flipbook-header { padding: 12px 16px; } .flipbook-btn { padding: 6px 12px; font-size: 12px; } .page-counter { font-size: 12px; min-width: 60px; } .thumbnails-panel { width: 280px; right: 12px; bottom: 80px; } .thumbnails-btn { bottom: 16px; right: 16px; width: 48px; height: 48px; } }
-    @media (max-width: 480px) { .flipbook-header { flex-wrap: wrap; gap: 8px; padding: 10px 12px; } .flipbook-controls { gap: 6px; } .flipbook-btn { padding: 5px 10px; font-size: 11px; } .page-counter { font-size: 11px; min-width: 50px; } .flipbook-container { padding: 12px; } .thumbnails-panel { width: calc(100vw - 24px); right: 12px; bottom: 72px; } .thumbnails-btn { bottom: 12px; right: 12px; width: 44px; height: 44px; } }
   </style>
 </head>
 <body>
@@ -61,7 +34,10 @@
       </div>
       <div class="flipbook-controls">
         <button class="flipbook-btn" id="btnPrev">← Anterior</button>
-        <span class="page-counter" id="pageCounter">-</span>
+        <div class="page-nav">
+          <input type="number" class="page-input" id="pageInput" min="1" max="32" value="1" inputmode="numeric" aria-label="Ir a página">
+          <span class="page-total" id="pageTotal">/ 32</span>
+        </div>
         <button class="flipbook-btn" id="btnNext">Siguiente →</button>
         <a href="index.html" class="flipbook-btn">← Biblioteca</a>
         <button class="audio-toggle" id="btnAudio" aria-label="Toggle audio">🔊</button>
@@ -71,115 +47,27 @@
       <div id="book"></div>
     </div>
   </div>
+
+  <div class="zoom-controls">
+    <button class="zoom-btn" id="zoomOut" aria-label="Reducir zoom">−</button>
+    <span class="zoom-indicator" id="zoomIndicator" title="Click para restablecer">100%</span>
+    <button class="zoom-btn" id="zoomIn" aria-label="Aumentar zoom">+</button>
+  </div>
+
   <button class="thumbnails-btn" id="thumbsBtn" aria-label="Miniaturas">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
   </button>
   <div class="thumbnails-panel" id="thumbsPanel">
     <h4>Ir a página</h4>
+    <div class="thumbs-progress"><div class="thumbs-progress-bar" id="thumbsProgress"></div></div>
     <div class="thumbnails-grid" id="thumbsGrid"></div>
   </div>
 
   <script type="module">
-    import { CATALOGS_CONFIG, getFlipbookConfig } from './js/config.js';
-    import { audioSystem } from './js/audio.js';
-
-    const URL_PARAMS = new URLSearchParams(window.location.search);
-    const PAGE_PARAM = URL_PARAMS.get('page');
-    const CURRENT_THEME = 'representadas';
-    const CONFIG = CATALOGS_CONFIG[CURRENT_THEME];
-    let pageFlip = null;
-
-    const btnPrev = document.getElementById('btnPrev');
-    const btnNext = document.getElementById('btnNext');
-    const pageCounter = document.getElementById('pageCounter');
-    const thumbsBtn = document.getElementById('thumbsBtn');
-    const thumbsPanel = document.getElementById('thumbsPanel');
-    const thumbsGrid = document.getElementById('thumbsGrid');
-    const btnAudio = document.getElementById('btnAudio');
-
-    btnAudio.textContent = audioSystem.isMuted() ? '🔇' : '🔊';
-    btnAudio.addEventListener('click', () => {
-      const muted = audioSystem.toggleMute();
-      btnAudio.textContent = muted ? '🔇' : '🔊';
-    });
-
-    thumbsBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      thumbsPanel.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.thumbnails-panel') && !e.target.closest('.thumbnails-btn')) {
-        thumbsPanel.classList.remove('active');
-      }
-    });
-
-    async function buildFlipbook() {
-      const bookEl = document.getElementById('book');
-      let startPage = PAGE_PARAM ? parseInt(PAGE_PARAM) - 1 : 0;
-      if (startPage < 0) startPage = 0;
-      const settings = await getFlipbookConfig(CURRENT_THEME, CONFIG.total_pages);
-
-      const PageFlipConstructor = window.St?.PageFlip;
-      if (!PageFlipConstructor) {
-        console.error('StPageFlip library not loaded');
-        return;
-      }
-
-      pageFlip = new PageFlipConstructor(bookEl, settings);
-      const imageUrls = [];
-      for (let i = 1; i <= CONFIG.total_pages; i++) {
-        imageUrls.push(`images/${CURRENT_THEME}/page_${String(i).padStart(3, '0')}.jpg`);
-      }
-      pageFlip.loadFromImages(imageUrls);
-      if (startPage > 0) pageFlip.turnToPage(startPage);
-      pageFlip.on('flip', (e) => {
-        pageCounter.textContent = `${e.data + 1}/${CONFIG.total_pages}`;
-        audioSystem.play('flip');
-        updateThumbnails();
-      });
-      pageFlip.on('init', (e) => {
-        pageCounter.textContent = `${e.data + 1}/${CONFIG.total_pages}`;
-      });
-      btnPrev.addEventListener('click', () => { pageFlip.flipPrev(); audioSystem.play('flip'); });
-      btnNext.addEventListener('click', () => { pageFlip.flipNext(); audioSystem.play('flip'); });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') pageFlip.flipPrev();
-        if (e.key === 'ArrowRight') pageFlip.flipNext();
-      });
-      updateThumbnails();
-    }
-
-    function updateThumbnails() {
-      thumbsGrid.innerHTML = '';
-      const currentPage = pageFlip ? pageFlip.getCurrentPageIndex() + 1 : 1;
-      const blockSize = 4;
-      const totalBlocks = Math.ceil(CONFIG.total_pages / blockSize);
-      for (let b = 0; b < totalBlocks; b++) {
-        const start = b * blockSize + 1;
-        const end = Math.min(start + blockSize - 1, CONFIG.total_pages);
-        const thumb = document.createElement('div');
-        thumb.className = 'thumb-item';
-        if (currentPage >= start && currentPage <= end) thumb.classList.add('active');
-        const thumbImg = document.createElement('img');
-        thumbImg.src = `images/${CURRENT_THEME}/page_${String(start).padStart(3, '0')}.jpg`;
-        thumbImg.alt = `Páginas ${start}-${end}`;
-        thumbImg.loading = 'lazy';
-        thumb.appendChild(thumbImg);
-        thumb.addEventListener('click', () => {
-          audioSystem.play('jump');
-          if (pageFlip) pageFlip.turnToPage(start - 1);
-          thumbsPanel.classList.remove('active');
-        });
-        thumbsGrid.appendChild(thumb);
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', buildFlipbook);
-    } else {
-      buildFlipbook();
-    }
+    import { initFlipbook } from './js/flipbook-ui.js';
+    import { applyReactiveYear } from './js/year.js';
+    applyReactiveYear();
+    initFlipbook({ theme: 'representadas' });
   </script>
 </body>
 </html>
