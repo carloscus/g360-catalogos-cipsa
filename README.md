@@ -47,9 +47,9 @@
 - **Slider de navegación**: Barra arrastrable en la toolbar para recorrer páginas
 - **Toolbar inferior**: Acceso rápido a navegación, lupa, miniaturas, pantalla completa y sonido
 - **Pantalla completa**: Botón `⛶` para ver el catálogo a pantalla completa (Fullscreen API)
-- **Lupa de ampliación**: Ventana de inspección amplia con imagen de detalle (2800px) nítida; botón `🔍` o doble click para activar, controles `+`/`-` en la toolbar, rueda del mouse para zoom, click en la ventana para fijar posición (pin)
-- **Captura para pedido**: Botón `📷` en la lupa descarga la región ampliada como PNG para adjuntarla al pedido
-- **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado para no interferir con la lupa)
+- **Lupa de ampliación**: Ventana de inspección amplia con imagen de detalle (2800px) nítida; botón `🔍` o doble click para activar, controles `+`/`-` en la toolbar, rueda del mouse para zoom, click en la ventana para fijar posición (pin) y arrastrar para desplazar el detalle (pan)
+- **Captura para pedido**: Botón `📷` en la lupa descarga la región ampliada como PNG a 2x (recorte correcto en coordenadas de la imagen nativa) para adjuntarla al pedido
+- **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado; con la lupa activa el arrastre de página se suspende para inspeccionar sin voltear)
 - **Índice / secciones**: Panel `☰` con acceso directo a secciones del catálogo definidas en `config.js`
 - **Compartir página**: Botón `🔗` copia la URL con `?page=N` para enlazar una página exacta
 - **Persistencia de lectura**: Recuerda la última página leída por catálogo (`localStorage`) y continúa ahí

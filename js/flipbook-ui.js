@@ -101,6 +101,7 @@ export async function initFlipbook({ theme }) {
 
   bookEl.addEventListener('mousemove', (e) => {
     if (magnifier && magVisible && magFollow) updateMagnifier(e);
+    if (magVisible) return; // con la lupa activa no se arrastra la página
     if (!dragStart) return;
     e.preventDefault();
     e.stopPropagation();
@@ -261,8 +262,53 @@ export async function initFlipbook({ theme }) {
     magnifier.classList.toggle('pinned', magPinned);
   });
 
+  // Arrastrar el contenido dentro de la lupa cuando está fijada (pan)
+  let magPan = null;
+  magnifierViewport.addEventListener('mousedown', (e) => {
+    if (!magPinned) return;
+    e.preventDefault();
+    e.stopPropagation();
+    magPan = { x: e.clientX, y: e.clientY };
+    magnifier.classList.add('panning');
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!magPan) return;
+    if (!magImage) return;
+    e.preventDefault();
+    const dx = e.clientX - magPan.x;
+    const dy = e.clientY - magPan.y;
+    magPan = { x: e.clientX, y: e.clientY };
+    const level = magZoom();
+    const vw = magnifierViewport.clientWidth;
+    const vh = magnifierViewport.clientHeight;
+    const totalW = magImage.naturalW * level;
+    const totalH = magImage.naturalH * level;
+    // desplazar el recorte en px CSS
+    let left = parseFloat(magnifierImg.style.left) || 0;
+    let top = parseFloat(magnifierImg.style.top) || 0;
+    left += dx;
+    top += dy;
+    // limitar al rango visible (no mostrar fondo fuera de la imagen)
+    const maxLeft = 0;
+    const minLeft = -(totalW - vw);
+    const maxTop = 0;
+    const minTop = -(totalH - vh);
+    left = Math.max(minLeft, Math.min(maxLeft, left));
+    top = Math.max(minTop, Math.min(maxTop, top));
+    magnifierImg.style.left = `${left}px`;
+    magnifierImg.style.top = `${top}px`;
+    // actualizar las coordenadas relativas para futuros zooms
+    lastRX = (left * -1) / totalW;
+    lastRY = (top * -1) / totalH;
+  });
+  window.addEventListener('mouseup', () => {
+    magPan = null;
+    magnifier.classList.remove('panning');
+  });
+
   function captureMagnifier() {
     if (!magImage) return;
+    const level = magZoom();
     const scale = 2; // resolucion 2x para nitidez
     const vw = magnifierViewport.clientWidth;
     const vh = magnifierViewport.clientHeight;
@@ -272,11 +318,14 @@ export async function initFlipbook({ theme }) {
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // Recortar la region visible del viewport desde la imagen ampliada
-    const ix = parseFloat(magnifierImg.style.left) * -1;
-    const iy = parseFloat(magnifierImg.style.top) * -1;
-    const iw = vw;
-    const ih = vh;
+    // Posicion de la imagen en px CSS (escala mostrada = level)
+    const leftPx = parseFloat(magnifierImg.style.left) || 0;
+    const topPx = parseFloat(magnifierImg.style.top) || 0;
+    // Convertir a coordenadas de la imagen natural (drawImage usa px intrínsecos)
+    const ix = (leftPx * -1) / level;
+    const iy = (topPx * -1) / level;
+    const iw = vw / level;   // region visible en px naturales
+    const ih = vh / level;
     ctx.drawImage(magnifierImg, ix, iy, iw, ih, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
