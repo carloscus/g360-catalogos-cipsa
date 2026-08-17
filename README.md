@@ -50,6 +50,9 @@
 - **Lupa de ampliación**: Ventana de inspección amplia centrada sobre el cursor (como lupa física); botón `🔍` o doble click para activar, controles `+`/`-` en la toolbar, rueda del mouse para zoom, click en la ventana para fijar posición (pin) y arrastrar para desplazar el detalle (pan). Al navegar re-sincroniza el recorte con la posición del cursor (o al centro si está fijada)
 - **Captura para pedido**: Botón `📷` en la lupa descarga la región ampliada como PNG a 2x (recorte correcto en coordenadas de la imagen nativa) para adjuntarla al pedido
 - **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado; con la lupa activa el arrastre de página se suspende para inspeccionar sin voltear)
+- **Rueda del mouse**: Sin lupa voltea páginas; con lupa activa ajusta el zoom
+- **Pantalla completa**: Aprovecha todo el viewport (`:fullscreen` elimina márgenes y amplía el libro)
+- **Responsive móvil**: Libro centrado y escalado con `min()` para usar todo el alto disponible; pan táctil en la lupa fijada
 - **Índice / secciones**: Panel `☰` con acceso directo a secciones del catálogo definidas en `config.js`
 - **Compartir página**: Botón `🔗` copia la URL con `?page=N` para enlazar una página exacta
 - **Persistencia de lectura**: Recuerda la última página leída por catálogo (`localStorage`) y continúa ahí

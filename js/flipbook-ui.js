@@ -32,6 +32,7 @@ export async function initFlipbook({ theme }) {
 
   const bookEl = document.getElementById('book');
   const container = document.querySelector('.flipbook-container');
+  const wrapper = document.querySelector('.flipbook-wrapper');
   const btnPrev = document.getElementById('btnPrev');
   const btnNext = document.getElementById('btnNext');
   const pageInput = document.getElementById('pageInput');
@@ -84,6 +85,9 @@ export async function initFlipbook({ theme }) {
   }
 
   document.addEventListener('click', (e) => {
+    if (indexPanel && !e.target.closest('.index-panel') && !e.target.closest('#btnIndex')) {
+      indexPanel.classList.remove('active');
+    }
     if (!e.target.closest('.thumbnails-panel') && !e.target.closest('.thumbnails-btn') && !e.target.closest('.thumbs-hint')) {
       thumbsPanel.classList.remove('active');
     }
@@ -94,6 +98,7 @@ export async function initFlipbook({ theme }) {
   let dragOccurred = false;
 
   bookEl.addEventListener('mousedown', (e) => {
+    if (magVisible) return; // con la lupa activa no se arrastra la página
     e.preventDefault();
     e.stopPropagation();
     dragStart = { x: e.clientX, y: e.clientY, started: false };
@@ -130,17 +135,24 @@ export async function initFlipbook({ theme }) {
     }
   }, true);
 
-  /* ── Zoom con rueda del mouse (cuando la lupa está activa) ── */
+  /* ── Rueda del mouse ── */
   bookEl.addEventListener('wheel', (e) => {
-    if (!magVisible) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const delta = e.deltaY < 0 ? 1 : -1;
-    const next = Math.min(MAG_LEVELS.length - 1, Math.max(0, magLevelIdx + delta));
-    if (next !== magLevelIdx) {
-      magLevelIdx = next;
-      setMagLevelText();
-      if (magImage) applyMagnifierZoom(lastRX, lastRY);
+    if (magVisible) {
+      // con la lupa activa: la rueda ajusta el zoom
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY < 0 ? 1 : -1;
+      const next = Math.min(MAG_LEVELS.length - 1, Math.max(0, magLevelIdx + delta));
+      if (next !== magLevelIdx) {
+        magLevelIdx = next;
+        setMagLevelText();
+        if (magImage) applyMagnifierZoom(lastRX, lastRY);
+      }
+    } else if (pageFlip) {
+      // sin lupa: la rueda voltea la página (como las apps de catálogo)
+      e.preventDefault();
+      if (e.deltaY > 0) pageFlip.flipNext();
+      else if (e.deltaY < 0) pageFlip.flipPrev();
     }
   }, { passive: false });
 
@@ -295,31 +307,26 @@ export async function initFlipbook({ theme }) {
 
   // Arrastrar el contenido dentro de la lupa cuando está fijada (pan)
   let magPan = null;
-  magnifierViewport.addEventListener('mousedown', (e) => {
+
+  function panStart(x, y) {
     if (!magPinned) return;
-    e.preventDefault();
-    e.stopPropagation();
-    magPan = { x: e.clientX, y: e.clientY };
+    magPan = { x, y };
     magnifier.classList.add('panning');
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (!magPan) return;
-    if (!magImage) return;
-    e.preventDefault();
-    const dx = e.clientX - magPan.x;
-    const dy = e.clientY - magPan.y;
-    magPan = { x: e.clientX, y: e.clientY };
+  }
+  function panMove(x, y) {
+    if (!magPan || !magImage) return;
+    const dx = x - magPan.x;
+    const dy = y - magPan.y;
+    magPan = { x, y };
     const level = magZoom();
     const vw = magnifierViewport.clientWidth;
     const vh = magnifierViewport.clientHeight;
     const totalW = magImage.naturalW * level;
     const totalH = magImage.naturalH * level;
-    // desplazar el recorte en px CSS
     let left = parseFloat(magnifierImg.style.left) || 0;
     let top = parseFloat(magnifierImg.style.top) || 0;
     left += dx;
     top += dy;
-    // limitar al rango visible (no mostrar fondo fuera de la imagen)
     const maxLeft = 0;
     const minLeft = -(totalW - vw);
     const maxTop = 0;
@@ -328,14 +335,43 @@ export async function initFlipbook({ theme }) {
     top = Math.max(minTop, Math.min(maxTop, top));
     magnifierImg.style.left = `${left}px`;
     magnifierImg.style.top = `${top}px`;
-    // actualizar las coordenadas relativas para futuros zooms
     lastRX = (left * -1) / totalW;
     lastRY = (top * -1) / totalH;
-  });
-  window.addEventListener('mouseup', () => {
+  }
+  function panEnd() {
     magPan = null;
     magnifier.classList.remove('panning');
+  }
+
+  magnifierViewport.addEventListener('mousedown', (e) => {
+    if (!magPinned) return;
+    e.preventDefault();
+    e.stopPropagation();
+    panStart(e.clientX, e.clientY);
   });
+  window.addEventListener('mousemove', (e) => {
+    if (!magPan) return;
+    e.preventDefault();
+    panMove(e.clientX, e.clientY);
+  });
+  window.addEventListener('mouseup', panEnd);
+
+  // Touch: pan táctil dentro de la lupa fijada
+  magnifierViewport.addEventListener('touchstart', (e) => {
+    if (!magPinned || e.touches.length !== 1) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const t = e.touches[0];
+    panStart(t.clientX, t.clientY);
+  }, { passive: false });
+  magnifierViewport.addEventListener('touchmove', (e) => {
+    if (!magPan || e.touches.length !== 1) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const t = e.touches[0];
+    panMove(t.clientX, t.clientY);
+  }, { passive: false });
+  magnifierViewport.addEventListener('touchend', panEnd);
 
   function captureMagnifier() {
     if (!magImage) return;
@@ -370,7 +406,9 @@ export async function initFlipbook({ theme }) {
     btnFullscreen.addEventListener('click', () => {
       if (document.fullscreenElement) {
         document.exitFullscreen();
-      } else {
+      } else if (wrapper && wrapper.requestFullscreen) {
+        wrapper.requestFullscreen();
+      } else if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
       }
       audioSystem.play('hover');
@@ -402,11 +440,6 @@ export async function initFlipbook({ theme }) {
       e.stopPropagation();
       buildIndex();
       indexPanel.classList.toggle('active');
-    });
-    document.addEventListener('click', (e) => {
-      if (indexPanel && !e.target.closest('.index-panel') && !e.target.closest('#btnIndex')) {
-        indexPanel.classList.remove('active');
-      }
     });
   }
 
