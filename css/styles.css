@@ -303,9 +303,9 @@ body {
   .hero p { font-size: 1rem; }
   .hero::before { width: 300px; height: 300px; }
   .regleta-container { padding: 0 20px 32px; }
-  .regleta { gap: 14px; padding: 12px 0 16px; }
-  .catalog-card { width: 170px; border-radius: var(--radius-md); }
-  .catalog-card-cover { height: 220px; }
+  .regleta { flex-wrap: wrap; gap: 14px; padding: 12px 0 16px; overflow-x: visible; }
+  .catalog-card { width: calc(50% - 7px); border-radius: var(--radius-md); }
+  .catalog-card-cover { height: 200px; }
   .catalog-card-info { padding: 14px; }
   .catalog-card-title { font-size: 0.9rem; }
   .catalog-card-desc { font-size: 0.75rem; }
@@ -317,7 +317,8 @@ body {
   .hero h1 { font-size: 1.6rem; }
   .hero p { font-size: 0.9rem; }
   .regleta-container { padding: 0 16px 24px; }
-  .catalog-card { width: 155px; }
-  .catalog-card-cover { height: 200px; }
+  .regleta { gap: 12px; }
+  .catalog-card { width: calc(50% - 6px); }
+  .catalog-card-cover { height: 180px; }
   .footer { padding: 32px 16px; }
 }

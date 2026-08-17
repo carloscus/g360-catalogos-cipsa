@@ -125,6 +125,20 @@ export async function initFlipbook({ theme }) {
     }
   }, true);
 
+  /* ── Zoom con rueda del mouse (cuando la lupa está activa) ── */
+  bookEl.addEventListener('wheel', (e) => {
+    if (!magVisible) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const delta = e.deltaY < 0 ? 1 : -1;
+    const next = Math.min(MAG_LEVELS.length - 1, Math.max(0, magLevelIdx + delta));
+    if (next !== magLevelIdx) {
+      magLevelIdx = next;
+      setMagLevelText();
+      if (magImage) applyMagnifierZoom(lastRX, lastRY);
+    }
+  }, { passive: false });
+
   /* ── Doble-click: activar/cerrar lupa ── */
   let lastClickTime = 0;
   bookEl.addEventListener('click', (e) => {
