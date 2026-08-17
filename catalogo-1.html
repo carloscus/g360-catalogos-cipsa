@@ -54,6 +54,9 @@
     </div>
     <span class="toolbar-sep"></span>
     <button class="toolbar-btn" id="btnIndex" aria-label="Índice">☰</button>
+    <button class="toolbar-btn zoom-toolbar-btn" id="magZoomOut" aria-label="Reducir zoom">−</button>
+    <span class="zoom-level-badge" id="magLevel">1x</span>
+    <button class="toolbar-btn zoom-toolbar-btn" id="magZoomIn" aria-label="Aumentar zoom">+</button>
     <button class="toolbar-btn" id="btnMagnifier" aria-label="Activar lupa">🔍</button>
     <button class="toolbar-btn" id="thumbsBtn" aria-label="Miniaturas">▦</button>
     <button class="toolbar-btn" id="btnFullscreen" aria-label="Pantalla completa">⛶</button>
@@ -67,12 +70,14 @@
   </div>
 
   <div class="magnifier" id="magnifier" role="dialog" aria-label="Lupa de ampliación">
-    <img class="magnifier-img" id="magnifierImg" alt="Vista ampliada" draggable="false">
-    <div class="magnifier-toolbar">
-      <button class="magnifier-btn" id="magZoomOut" aria-label="Reducir zoom de lupa">−</button>
-      <span class="magnifier-level" id="magLevel">1x</span>
-      <button class="magnifier-btn" id="magZoomIn" aria-label="Aumentar zoom de lupa">+</button>
+    <div class="magnifier-header">
+      <span class="magnifier-caption">Inspección</span>
+      <button class="magnifier-btn" id="magCapture" aria-label="Capturar imagen de la lupa" title="Capturar para pedido">📷</button>
       <button class="magnifier-btn magnifier-close" id="magClose" aria-label="Cerrar lupa">×</button>
+    </div>
+    <div class="magnifier-viewport" id="magnifierViewport">
+      <span class="magnifier-pin-hint">📌 Fijar posición</span>
+      <img class="magnifier-img" id="magnifierImg" alt="Vista ampliada" draggable="false">
     </div>
   </div>
 

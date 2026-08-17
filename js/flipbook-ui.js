@@ -50,9 +50,11 @@ export async function initFlipbook({ theme }) {
   const indexList = document.getElementById('indexList');
   const magnifier = document.getElementById('magnifier');
   const magnifierImg = document.getElementById('magnifierImg');
+  const magnifierViewport = document.getElementById('magnifierViewport');
   const magLevel = document.getElementById('magLevel');
   const magZoomIn = document.getElementById('magZoomIn');
   const magZoomOut = document.getElementById('magZoomOut');
+  const magCapture = document.getElementById('magCapture');
   const magClose = document.getElementById('magClose');
 
   pageTotal.textContent = `/ ${CONFIG.total_pages}`;
@@ -155,7 +157,8 @@ export async function initFlipbook({ theme }) {
   /* ── Lupa (magnifier) ── */
   let magLevelIdx = 1; // default 0.75x
   let magVisible = false;
-  let magFollow = true;
+  let magFollow = true; // sigue al cursor mientras true
+  let magPinned = false; // punto fijo al pin (click en el viewport)
   let magImage = null;
   let lastRX = 0.5;
   let lastRY = 0.5;
@@ -196,8 +199,8 @@ export async function initFlipbook({ theme }) {
     const level = magZoom();
     magnifierImg.style.width = `${magImage.naturalW * level}px`;
     magnifierImg.style.height = `${magImage.naturalH * level}px`;
-    const mw = magnifier.clientWidth;
-    const mh = magnifier.clientHeight;
+    const mw = magnifierViewport.clientWidth;
+    const mh = magnifierViewport.clientHeight;
     magnifierImg.style.left = `${-(rx * magImage.naturalW * level) + mw / 2}px`;
     magnifierImg.style.top = `${-(ry * magImage.naturalH * level) + mh / 2}px`;
   }
@@ -211,7 +214,18 @@ export async function initFlipbook({ theme }) {
   function hideMagnifier() {
     magnifier.style.display = 'none';
     magVisible = false;
+    magPinned = false;
+    magFollow = true;
     if (btnMagnifier) btnMagnifier.classList.remove('active');
+  }
+
+  function toggleMagnifier() {
+    if (magVisible) {
+      hideMagnifier();
+      return;
+    }
+    if (pageFlip) loadMagImage(pageFlip.getCurrentPageIndex() + 1);
+    showMagnifier();
   }
 
   if (btnMagnifier) {
@@ -219,6 +233,57 @@ export async function initFlipbook({ theme }) {
       toggleMagnifier();
       audioSystem.play('hover');
     });
+  }
+
+  magZoomIn.addEventListener('click', () => {
+    magLevelIdx = Math.min(MAG_LEVELS.length - 1, magLevelIdx + 1);
+    setMagLevelText();
+    if (magImage) applyMagnifierZoom(lastRX, lastRY);
+    audioSystem.play('hover');
+  });
+  magZoomOut.addEventListener('click', () => {
+    magLevelIdx = Math.max(0, magLevelIdx - 1);
+    setMagLevelText();
+    if (magImage) applyMagnifierZoom(lastRX, lastRY);
+    audioSystem.play('hover');
+  });
+  magClose.addEventListener('click', () => hideMagnifier());
+
+  magCapture.addEventListener('click', () => {
+    captureMagnifier();
+    audioSystem.play('hover');
+  });
+
+  magnifierViewport.addEventListener('click', (e) => {
+    e.stopPropagation();
+    magPinned = !magPinned;
+    magFollow = !magPinned;
+    magnifier.classList.toggle('pinned', magPinned);
+  });
+
+  function captureMagnifier() {
+    if (!magImage) return;
+    const scale = 2; // resolucion 2x para nitidez
+    const vw = magnifierViewport.clientWidth;
+    const vh = magnifierViewport.clientHeight;
+    const canvas = document.createElement('canvas');
+    canvas.width = vw * scale;
+    canvas.height = vh * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Recortar la region visible del viewport desde la imagen ampliada
+    const ix = parseFloat(magnifierImg.style.left) * -1;
+    const iy = parseFloat(magnifierImg.style.top) * -1;
+    const iw = vw;
+    const ih = vh;
+    ctx.drawImage(magnifierImg, ix, iy, iw, ih, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `${theme}-pagina-${magImage.page}-zoom-${magZoom()}x.png`;
+    a.click();
+    trackAction(theme, 'capture', magImage.page);
   }
 
   if (btnFullscreen) {
@@ -282,17 +347,6 @@ export async function initFlipbook({ theme }) {
     });
   }
 
-  function toggleMagnifier() {
-    if (magVisible) {
-      hideMagnifier();
-      return;
-    }
-    if (pageFlip) {
-      loadMagImage(pageFlip.getCurrentPageIndex() + 1);
-    }
-    showMagnifier();
-  }
-
   function updateMagnifier(e) {
     if (!pageFlip) return;
     const bounds = pageFlip.getBoundsRect();
@@ -316,15 +370,14 @@ export async function initFlipbook({ theme }) {
       rx = (relX - (leftSide ? 0 : pageWidth)) / pageWidth;
     }
     const ry = (e.clientY - bounds.top) / bounds.height;
-    rx = Math.max(0, Math.min(1, rx));
     lastRX = Math.max(0, Math.min(1, rx));
     lastRY = Math.max(0, Math.min(1, ry));
 
     loadMagImage(pageIdx + 1);
     applyMagnifierZoom(lastRX, lastRY);
 
-    const mx = e.clientX + 18;
-    const my = e.clientY + 18;
+    const mx = e.clientX + 16;
+    const my = e.clientY + 16;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const mw = magnifier.offsetWidth;
@@ -332,49 +385,6 @@ export async function initFlipbook({ theme }) {
     magnifier.style.left = `${Math.max(0, Math.min(mx, vw - mw - 8))}px`;
     magnifier.style.top = `${Math.max(0, Math.min(my, vh - mh - 8))}px`;
   }
-
-  magZoomIn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    magLevelIdx = Math.min(MAG_LEVELS.length - 1, magLevelIdx + 1);
-    setMagLevelText();
-    if (magImage) applyMagnifierZoom(lastRX, lastRY);
-    audioSystem.play('hover');
-  });
-  magZoomOut.addEventListener('click', (e) => {
-    e.stopPropagation();
-    magLevelIdx = Math.max(0, magLevelIdx - 1);
-    setMagLevelText();
-    if (magImage) applyMagnifierZoom(lastRX, lastRY);
-    audioSystem.play('hover');
-  });
-  magClose.addEventListener('click', (e) => {
-    e.stopPropagation();
-    hideMagnifier();
-  });
-
-  let magDrag = null;
-  magnifier.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    magFollow = false;
-    const r = magnifier.getBoundingClientRect();
-    magDrag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
-    magnifier.classList.add('dragging');
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (!magDrag) return;
-    e.preventDefault();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const mw = magnifier.offsetWidth;
-    const mh = magnifier.offsetHeight;
-    magnifier.style.left = `${Math.max(0, Math.min(e.clientX - magDrag.dx, vw - mw))}px`;
-    magnifier.style.top = `${Math.max(0, Math.min(e.clientY - magDrag.dy, vh - mh))}px`;
-  });
-  window.addEventListener('mouseup', () => {
-    magDrag = null;
-    magnifier.classList.remove('dragging');
-  });
 
   bookEl.addEventListener('mouseenter', () => {
     if (magVisible && magFollow) magnifier.style.display = 'block';
