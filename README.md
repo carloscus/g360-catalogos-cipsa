@@ -154,6 +154,9 @@ g360-catalogos-CIPSA/
 │   └── brand/                  # Logos y favicons CIPSA
 │       ├── logo-cipsa.svg
 │       └── favicon.svg
+├── catalogs/                   # PDFs fuente (NO versionados, ver .gitignore)
+├── tools/
+│   └── generate_pages.py       # Generador de páginas optimizadas desde PDF
 └── test_all_catalogs.py        # Script de testing
 ```
 
@@ -165,6 +168,45 @@ g360-catalogos-CIPSA/
 # Ejecutar test de todos los catálogos
 python test_all_catalogs.py
 ```
+
+---
+
+## Generación de Imágenes desde PDF
+
+Las páginas del flipbook se generan desde los PDFs de `catalogs/` (que NO se suben al repo) usando un script local. Renderiza cada página a alta resolución para que el zoom 2x y pantallas retina se vean nítidos.
+
+### Requisitos
+
+```bash
+pip install pymupdf pillow
+```
+
+### Uso
+
+```bash
+# Generar/actualizar todos los catálogos
+python tools/generate_pages.py
+
+# Solo un tema
+python tools/generate_pages.py --only vinifan
+
+# Solo simular qué haría (sin escribir archivos)
+python tools/generate_pages.py --dry-run
+
+# Ajustar calidad JPEG (default 85)
+python tools/generate_pages.py --quality 80
+```
+
+### Especificaciones de salida
+
+| Orientación | Ancho objetivo | Tamaño estimado/pág |
+|-------------|---------------|---------------------|
+| Portrait | 2000px | ~400-650KB |
+| Landscape | 2600px | ~350-500KB |
+
+- JPEG optimizado: `progressive`, croma `4:2:0`, sin metadatos
+- `cover.jpg` se genera automáticamente desde la página 1
+- Los PDFs permanecen excluidos del repo (`.gitignore` → `catalogs/*.pdf`)
 
 ---
 
