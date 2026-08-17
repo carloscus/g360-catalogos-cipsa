@@ -18,8 +18,7 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
 .page-total { color: var(--text-secondary); font-size: 14px; }
 
 .flipbook-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; overflow: hidden; }
-.flipbook-container.zoomed { overflow: auto; }
-#book { box-shadow: 0 25px 80px rgba(0,0,0,0.6); max-width: 90vw; max-height: calc(100vh - 140px); transform-origin: center top; transition: transform 0.2s ease; }
+#book { box-shadow: 0 25px 80px rgba(0,0,0,0.6); max-width: 90vw; max-height: calc(100vh - 140px); }
 .page-content { width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 2px; }
 .page-content img { width: 100%; height: 100%; object-fit: contain; }
 
@@ -44,11 +43,20 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
 .audio-toggle { background: rgba(255,255,255,0.08); border: 1px solid rgba(139,148,158,0.2); color: var(--text-secondary); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.2s; }
 .audio-toggle:hover { border-color: var(--catalog-accent); color: var(--catalog-accent); }
 
-.zoom-controls { position: fixed; bottom: 24px; left: 24px; display: flex; align-items: center; gap: 8px; background: rgba(22,27,34,0.9); border: 1px solid rgba(139,148,158,0.2); border-radius: 24px; padding: 6px 10px; z-index: 200; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.zoom-controls { display: none; }
 .zoom-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,255,255,0.08); color: var(--text-primary); font-size: 18px; line-height: 1; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
 .zoom-btn:hover { background: var(--catalog-accent); color: #000; }
 .zoom-indicator { color: var(--text-secondary); font-size: 12px; min-width: 42px; text-align: center; cursor: pointer; user-select: none; }
 .zoom-indicator:hover { color: var(--catalog-accent); }
+
+.magnifier { position: fixed; width: 260px; height: 330px; display: none; z-index: 300; background: #10161d; border: 1px solid var(--catalog-accent); border-radius: 12px; overflow: hidden; box-shadow: 0 14px 44px rgba(0,0,0,0.6); cursor: grab; pointer-events: auto; }
+.magnifier.dragging { cursor: grabbing; }
+.magnifier-img { position: absolute; top: 0; left: 0; max-width: none; max-height: none; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+.magnifier-toolbar { position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px; background: rgba(13,17,23,0.88); backdrop-filter: blur(6px); z-index: 2; }
+.magnifier-btn { width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(255,255,255,0.1); color: var(--text-primary); font-size: 15px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.magnifier-btn:hover { background: var(--catalog-accent); color: #000; }
+.magnifier-level { color: var(--text-secondary); font-size: 11px; min-width: 34px; text-align: center; user-select: none; }
+.magnifier-close { margin-left: 8px; }
 
 @media (max-width: 768px) {
   .flipbook-header { padding: 12px 16px; }
@@ -59,8 +67,7 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
   .thumbnails-panel { width: 300px; right: 12px; bottom: 80px; }
   .thumbnails-btn { bottom: 16px; right: 16px; width: 48px; height: 48px; }
   .thumbnails-grid { grid-template-columns: repeat(4, 1fr); }
-  .zoom-controls { bottom: 16px; left: 16px; }
-  .zoom-btn { width: 28px; height: 28px; font-size: 16px; }
+  .magnifier { width: 220px; height: 280px; }
 }
 
 @media (max-width: 480px) {
@@ -73,5 +80,5 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
   .flipbook-container { padding: 12px; }
   .thumbnails-panel { width: calc(100vw - 24px); right: 12px; bottom: 72px; }
   .thumbnails-btn { bottom: 12px; right: 12px; width: 44px; height: 44px; }
-  .zoom-controls { bottom: 12px; left: 12px; }
+  .magnifier { width: 190px; height: 240px; }
 }

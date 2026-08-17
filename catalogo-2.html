@@ -48,10 +48,14 @@
     </div>
   </div>
 
-  <div class="zoom-controls">
-    <button class="zoom-btn" id="zoomOut" aria-label="Reducir zoom">−</button>
-    <span class="zoom-indicator" id="zoomIndicator" title="Click para restablecer">100%</span>
-    <button class="zoom-btn" id="zoomIn" aria-label="Aumentar zoom">+</button>
+  <div class="magnifier" id="magnifier" role="dialog" aria-label="Lupa de ampliación">
+    <img class="magnifier-img" id="magnifierImg" alt="Vista ampliada" draggable="false">
+    <div class="magnifier-toolbar">
+      <button class="magnifier-btn" id="magZoomOut" aria-label="Reducir zoom de lupa">−</button>
+      <span class="magnifier-level" id="magLevel">1x</span>
+      <button class="magnifier-btn" id="magZoomIn" aria-label="Aumentar zoom de lupa">+</button>
+      <button class="magnifier-btn magnifier-close" id="magClose" aria-label="Cerrar lupa">×</button>
+    </div>
   </div>
 
   <div class="thumbs-hint" id="thumbsHint" role="button" tabindex="0" aria-label="Ver páginas">

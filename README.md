@@ -44,7 +44,8 @@
 - **Detección automática de orientación**: Se adapta a imágenes portrait o landscape
 - **Miniaturas con progreso**: Panel emergente con bloques de páginas y barra de progreso
 - **Salto directo a página**: Input numérico para escribir la página destino + Enter
-- **Zoom completo**: Botones `+`/`-`, doble click para alternar y pinch-to-zoom en móvil
+- **Lupa de ampliación**: Cuadro flotante arrastrable que muestra el detalle de la página en alta resolución; doble click para activar, botones `+`/`-` para ajustar el nivel, se desprende y se mueve por la pantalla
+- **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado para no interferir con la lupa)
 - **Título reactivo al año**: El título, hero y footer se actualizan automáticamente con el año calendario (`2026 - 2027`)
 - **Sonidos**: Efectos de audio configurables (flip, hover, jump) con toggle mute
 - **Responsive**: Desktop, tablet y móvil con breakpoints en 1024px, 768px y 480px
