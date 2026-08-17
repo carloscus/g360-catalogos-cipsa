@@ -44,7 +44,10 @@
 - **Detección automática de orientación**: Se adapta a imágenes portrait o landscape
 - **Miniaturas con progreso**: Panel emergente con bloques de páginas y barra de progreso
 - **Salto directo a página**: Input numérico para escribir la página destino + Enter
-- **Lupa de ampliación**: Cuadro flotante arrastrable que muestra el detalle de la página en alta resolución; doble click para activar, botones `+`/`-` para ajustar el nivel, se desprende y se mueve por la pantalla
+- **Slider de navegación**: Barra arrastrable en la toolbar para recorrer páginas
+- **Toolbar inferior**: Acceso rápido a navegación, lupa, miniaturas, pantalla completa y sonido
+- **Pantalla completa**: Botón `⛶` para ver el catálogo a pantalla completa (Fullscreen API)
+- **Lupa de ampliación**: Cuadro flotante arrastrable con imagen de detalle (2800px) nítida; botón `🔍` o doble click para activar, botones `+`/`-` para nivel (0.5x–1x sobre resolución nativa, sin pixelar)
 - **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado para no interferir con la lupa)
 - **Título reactivo al año**: El título, hero y footer se actualizan automáticamente con el año calendario (`2026 - 2027`)
 - **Sonidos**: Efectos de audio configurables (flip, hover, jump) con toggle mute
@@ -146,7 +149,9 @@ g360-catalogos-CIPSA/
 ├── images/
 │   ├── vinifan/                # Páginas del catálogo VINIFAN
 │   │   ├── cover.jpg
-│   │   └── page_001.jpg ... page_072.jpg
+│   │   ├── page_001.jpg ... page_072.jpg
+│   │   └── detail/             # Versión 2800px para la lupa
+│   │       ├── page_001.jpg ... page_072.jpg
 │   ├── viniball/               # Páginas del catálogo VINIBALL
 │   ├── representadas/          # Páginas del catálogo REPRESENTADAS
 │   ├── institucional/          # Páginas del catálogo INSTITUCIONAL
@@ -207,6 +212,7 @@ python tools/generate_pages.py --quality 80
 
 - JPEG optimizado: `progressive`, croma `4:2:0`, sin metadatos
 - `cover.jpg` se genera automáticamente desde la página 1
+- **`detail/`**: versión a 2800px por página para la lupa (zoom profundo nítido); usar `--no-detail` para omitir
 - Los PDFs permanecen excluidos del repo (`.gitignore` → `catalogs/*.pdf`)
 
 ---

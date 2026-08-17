@@ -32,20 +32,26 @@
       <div class="flipbook-header-logo">
         <a href="index.html"><img src="assets/brand/logo-cipsa.svg" alt="CIPSA"></a>
       </div>
-      <div class="flipbook-controls">
-        <button class="flipbook-btn" id="btnPrev">← Anterior</button>
-        <div class="page-nav">
-          <input type="number" class="page-input" id="pageInput" min="1" max="10" value="1" inputmode="numeric" aria-label="Ir a página">
-          <span class="page-total" id="pageTotal">/ 10</span>
-        </div>
-        <button class="flipbook-btn" id="btnNext">Siguiente →</button>
-        <a href="index.html" class="flipbook-btn">← Biblioteca</a>
-        <button class="audio-toggle" id="btnAudio" aria-label="Toggle audio">🔊</button>
-      </div>
+      <a href="index.html" class="flipbook-btn">← Biblioteca</a>
     </header>
     <div class="flipbook-container">
       <div id="book"></div>
     </div>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <button class="toolbar-btn" id="btnPrev" aria-label="Anterior">←</button>
+    <button class="toolbar-btn" id="btnNext" aria-label="Siguiente">→</button>
+    <input type="range" class="toolbar-slider" id="pageSlider" min="1" max="10" value="1" aria-label="Navegar páginas">
+    <div class="page-nav">
+      <input type="number" class="page-input" id="pageInput" min="1" max="10" value="1" inputmode="numeric" aria-label="Ir a página">
+      <span class="page-total" id="pageTotal">/ 10</span>
+    </div>
+    <span class="toolbar-sep"></span>
+    <button class="toolbar-btn" id="btnMagnifier" aria-label="Activar lupa">🔍</button>
+    <button class="toolbar-btn" id="thumbsBtn" aria-label="Miniaturas">▦</button>
+    <button class="toolbar-btn" id="btnFullscreen" aria-label="Pantalla completa">⛶</button>
+    <button class="toolbar-btn" id="btnAudio" aria-label="Sonido">🔊</button>
   </div>
 
   <div class="magnifier" id="magnifier" role="dialog" aria-label="Lupa de ampliación">
@@ -58,14 +64,6 @@
     </div>
   </div>
 
-  <div class="thumbs-hint" id="thumbsHint" role="button" tabindex="0" aria-label="Ver páginas">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    <span>Ver páginas</span>
-  </div>
-
-  <button class="thumbnails-btn" id="thumbsBtn" aria-label="Miniaturas">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-  </button>
   <div class="thumbnails-panel" id="thumbsPanel">
     <h4>Ir a página</h4>
     <div class="thumbs-progress"><div class="thumbs-progress-bar" id="thumbsProgress"></div></div>

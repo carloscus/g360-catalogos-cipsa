@@ -17,7 +17,7 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
 .page-input:focus { color: var(--catalog-accent); }
 .page-total { color: var(--text-secondary); font-size: 14px; }
 
-.flipbook-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; overflow: hidden; }
+.flipbook-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px 20px 100px; overflow: hidden; }
 #book { box-shadow: 0 25px 80px rgba(0,0,0,0.6); max-width: 90vw; max-height: calc(100vh - 140px); }
 .page-content { width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 2px; }
 .page-content img { width: 100%; height: 100%; object-fit: contain; }
@@ -28,7 +28,7 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
 .thumbs-hint.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .thumbs-hint svg { flex-shrink: 0; }
 @keyframes hintPulse { 0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.4); } 50% { box-shadow: 0 4px 28px var(--catalog-glow), 0 0 14px var(--catalog-glow); } }
-.thumbnails-panel { position: fixed; bottom: 90px; right: 24px; width: 360px; max-width: calc(100vw - 32px); max-height: 420px; background: rgba(22,27,34,0.97); backdrop-filter: blur(16px); border: 1px solid rgba(139,148,158,0.2); border-radius: 16px; padding: 16px; z-index: 200; display: none; overflow-y: auto; }
+.thumbnails-panel { position: fixed; bottom: 120px; right: 24px; width: 360px; max-width: calc(100vw - 32px); max-height: 420px; background: rgba(22,27,34,0.97); backdrop-filter: blur(16px); border: 1px solid rgba(139,148,158,0.2); border-radius: 16px; padding: 16px; z-index: 200; display: none; overflow-y: auto; }
 .thumbnails-panel.active { display: block; }
 .thumbnails-panel h4 { color: var(--text-primary); margin-bottom: 12px; font-size: 14px; }
 .thumbs-progress { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
@@ -42,6 +42,13 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
 
 .audio-toggle { background: rgba(255,255,255,0.08); border: 1px solid rgba(139,148,158,0.2); color: var(--text-secondary); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.2s; }
 .audio-toggle:hover { border-color: var(--catalog-accent); color: var(--catalog-accent); }
+
+.toolbar { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(13,17,23,0.92); border: 1px solid rgba(139,148,158,0.2); border-radius: 16px; backdrop-filter: blur(12px); z-index: 200; box-shadow: 0 10px 36px rgba(0,0,0,0.5); }
+.toolbar-btn { width: 34px; height: 34px; border-radius: 10px; border: none; background: rgba(255,255,255,0.07); color: var(--text-primary); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.toolbar-btn:hover { background: var(--catalog-accent); color: #000; }
+.toolbar-btn.active { background: var(--catalog-accent); color: #000; }
+.toolbar-slider { width: 110px; accent-color: var(--catalog-accent); cursor: pointer; flex-shrink: 1; min-width: 60px; }
+.toolbar-sep { width: 1px; height: 24px; background: rgba(139,148,158,0.3); flex-shrink: 0; }
 
 .zoom-controls { display: none; }
 .zoom-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,255,255,0.08); color: var(--text-primary); font-size: 18px; line-height: 1; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
@@ -64,10 +71,13 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
   .page-nav { padding: 3px 8px; }
   .page-input { font-size: 12px; width: 36px; }
   .page-total { font-size: 12px; }
-  .thumbnails-panel { width: 300px; right: 12px; bottom: 80px; }
+  .thumbnails-panel { width: 300px; right: 12px; bottom: 150px; }
   .thumbnails-btn { bottom: 16px; right: 16px; width: 48px; height: 48px; }
   .thumbnails-grid { grid-template-columns: repeat(4, 1fr); }
   .magnifier { width: 220px; height: 280px; }
+  .toolbar { bottom: 12px; gap: 4px; padding: 6px 10px; border-radius: 14px; max-width: calc(100vw - 16px); flex-wrap: wrap; justify-content: center; }
+  .toolbar-btn { width: 30px; height: 30px; font-size: 14px; }
+  .toolbar-slider { width: 90px; }
 }
 
 @media (max-width: 480px) {
@@ -78,7 +88,10 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
   .page-input { font-size: 11px; width: 32px; }
   .page-total { font-size: 11px; }
   .flipbook-container { padding: 12px; }
-  .thumbnails-panel { width: calc(100vw - 24px); right: 12px; bottom: 72px; }
+  .thumbnails-panel { width: calc(100vw - 24px); right: 12px; bottom: 150px; }
   .thumbnails-btn { bottom: 12px; right: 12px; width: 44px; height: 44px; }
   .magnifier { width: 190px; height: 240px; }
+  .toolbar { max-width: calc(100vw - 12px); gap: 4px; }
+  .toolbar-btn { width: 28px; height: 28px; font-size: 13px; }
+  .toolbar-slider { width: 70px; }
 }

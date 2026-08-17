@@ -4,7 +4,7 @@ import { audioSystem } from './audio.js';
 const BLOCK_SIZE = 8;
 const DRAG_THRESHOLD = 6;
 const DBLCLICK_MS = 350;
-const MAG_LEVELS = [0.5, 0.75, 1, 1.5, 2];
+const MAG_LEVELS = [0.5, 0.75, 1]; // max 1 = resolución nativa (nunca upscale)
 
 export async function initFlipbook({ theme }) {
   const CONFIG = CATALOGS_CONFIG[theme];
@@ -38,6 +38,9 @@ export async function initFlipbook({ theme }) {
   const thumbsGrid = document.getElementById('thumbsGrid');
   const thumbsProgress = document.getElementById('thumbsProgress');
   const btnAudio = document.getElementById('btnAudio');
+  const btnMagnifier = document.getElementById('btnMagnifier');
+  const pageSlider = document.getElementById('pageSlider');
+  const btnFullscreen = document.getElementById('btnFullscreen');
   const magnifier = document.getElementById('magnifier');
   const magnifierImg = document.getElementById('magnifierImg');
   const magLevel = document.getElementById('magLevel');
@@ -129,7 +132,7 @@ export async function initFlipbook({ theme }) {
   });
 
   /* ── Lupa (magnifier) ── */
-  let magLevelIdx = 2; // default 1x
+  let magLevelIdx = 1; // default 0.75x
   let magVisible = false;
   let magFollow = true;
   let magImage = null;
@@ -146,14 +149,25 @@ export async function initFlipbook({ theme }) {
 
   function loadMagImage(pageNum) {
     if (magImage && magImage.page === pageNum) return;
-    const url = `images/${theme}/page_${String(pageNum).padStart(3, '0')}.jpg`;
+    const padded = String(pageNum).padStart(3, '0');
+    const detail = `images/${theme}/detail/page_${padded}.jpg`;
+    const normal = `images/${theme}/page_${padded}.jpg`;
     const probe = new Image();
     probe.onload = () => {
-      magImage = { page: pageNum, naturalW: probe.naturalWidth, naturalH: probe.naturalHeight };
-      magnifierImg.src = url;
+      magImage = { page: pageNum, naturalW: probe.naturalWidth, naturalH: probe.naturalHeight, src: detail };
+      magnifierImg.src = detail;
       applyMagnifierZoom(lastRX, lastRY);
     };
-    probe.src = url;
+    probe.onerror = () => {
+      const probe2 = new Image();
+      probe2.onload = () => {
+        magImage = { page: pageNum, naturalW: probe2.naturalWidth, naturalH: probe2.naturalHeight, src: normal };
+        magnifierImg.src = normal;
+        applyMagnifierZoom(lastRX, lastRY);
+      };
+      probe2.src = normal;
+    };
+    probe.src = detail;
   }
 
   function applyMagnifierZoom(rx, ry) {
@@ -170,11 +184,34 @@ export async function initFlipbook({ theme }) {
   function showMagnifier() {
     magnifier.style.display = 'block';
     magVisible = true;
+    if (btnMagnifier) btnMagnifier.classList.add('active');
   }
 
   function hideMagnifier() {
     magnifier.style.display = 'none';
     magVisible = false;
+    if (btnMagnifier) btnMagnifier.classList.remove('active');
+  }
+
+  if (btnMagnifier) {
+    btnMagnifier.addEventListener('click', () => {
+      toggleMagnifier();
+      audioSystem.play('hover');
+    });
+  }
+
+  if (btnFullscreen) {
+    btnFullscreen.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        document.documentElement.requestFullscreen();
+      }
+      audioSystem.play('hover');
+    });
+    document.addEventListener('fullscreenchange', () => {
+      btnFullscreen.classList.toggle('active', !!document.fullscreenElement);
+    });
   }
 
   function toggleMagnifier() {
@@ -252,7 +289,8 @@ export async function initFlipbook({ theme }) {
     e.preventDefault();
     e.stopPropagation();
     magFollow = false;
-    magDrag = { dx: e.clientX - magnifier.offsetLeft, dy: e.clientY - magnifier.offsetTop };
+    const r = magnifier.getBoundingClientRect();
+    magDrag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
     magnifier.classList.add('dragging');
   });
   window.addEventListener('mousemove', (e) => {
@@ -301,17 +339,30 @@ export async function initFlipbook({ theme }) {
 
     pageFlip.on('init', () => {
       pageInput.value = pageFlip.getCurrentPageIndex() + 1;
+      if (pageSlider) pageSlider.value = pageFlip.getCurrentPageIndex() + 1;
       updateThumbnails();
     });
 
     pageFlip.on('flip', (e) => {
       const page = e.data + 1;
       pageInput.value = page;
+      if (pageSlider) pageSlider.value = page;
       if (!suppressFlipSound) audioSystem.play('flip');
       suppressFlipSound = false;
       updateThumbnails();
       if (magVisible) loadMagImage(pageFlip.getCurrentPageIndex() + 1);
     });
+
+    if (pageSlider) {
+      pageSlider.max = CONFIG.total_pages;
+      pageSlider.addEventListener('input', () => {
+        pageInput.value = pageSlider.value;
+      });
+      pageSlider.addEventListener('change', () => {
+        const target = parseInt(pageSlider.value, 10);
+        if (target >= 1 && target <= CONFIG.total_pages) jumpToPage(target);
+      });
+    }
 
     btnPrev.addEventListener('click', () => { pageFlip.flipPrev(); });
     btnNext.addEventListener('click', () => { pageFlip.flipNext(); });
@@ -338,6 +389,7 @@ export async function initFlipbook({ theme }) {
       if (e.key === 'Escape') {
         thumbsPanel.classList.remove('active');
         hideMagnifier();
+        if (document.fullscreenElement) document.exitFullscreen();
       }
     });
 

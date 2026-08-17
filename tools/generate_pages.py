@@ -46,8 +46,10 @@ CATALOG_MAP = {
 # Anchos objetivo (px) segun orientacion de la pagina
 WIDTH_PORTRAIT = 2000
 WIDTH_LANDSCAPE = 2600
+WIDTH_DETAIL = 2800  # version de detalle para la lupa (zoom profundo nitido)
 
 QUALITY = 85
+QUALITY_DETAIL = 82
 
 
 def detect_orientation(rect):
@@ -61,10 +63,14 @@ def compute_scale(rect):
     return width / rect.width
 
 
-def render_page(doc, index):
-    """Renderiza la pagina `index` del PDF a PIL.Image a alta resolucion."""
+def compute_detail_scale(rect):
+    """Escala para la version de detalle (zoom profundo de la lupa)."""
+    return WIDTH_DETAIL / rect.width
+
+
+def render_page(doc, index, scale):
+    """Renderiza la pagina `index` del PDF a PIL.Image con la escala dada."""
     page = doc[index]
-    scale = compute_scale(page.rect)
     matrix = pymupdf.Matrix(scale, scale)
     pix = page.get_pixmap(matrix=matrix, alpha=False)
     return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
@@ -82,9 +88,12 @@ def save_optimized_jpeg(img, dest, quality=QUALITY):
     )
 
 
-def process_pdf(pdf_path, theme, dry_run=False, quality=QUALITY):
+def process_pdf(pdf_path, theme, dry_run=False, quality=QUALITY, detail=True):
     images_dir = ROOT / "images" / theme
+    detail_dir = images_dir / "detail"
     images_dir.mkdir(parents=True, exist_ok=True)
+    if detail:
+        detail_dir.mkdir(parents=True, exist_ok=True)
 
     doc = pymupdf.open(pdf_path)
     total = len(doc)
@@ -96,10 +105,20 @@ def process_pdf(pdf_path, theme, dry_run=False, quality=QUALITY):
         dest = images_dir / f"page_{page_num:03d}.jpg"
         if dry_run:
             print(f"  [dry-run] page_{page_num:03d}.jpg")
+            if detail:
+                print(f"  [dry-run] detail/page_{page_num:03d}.jpg")
             continue
-        img = render_page(doc, i)
+        scale = compute_scale(doc[i].rect)
+        img = render_page(doc, i, scale)
         save_optimized_jpeg(img, dest, quality)
         generated.append((dest, img.size))
+
+        if detail:
+            dscale = compute_detail_scale(doc[i].rect)
+            dimg = render_page(doc, i, dscale)
+            ddest = detail_dir / f"page_{page_num:03d}.jpg"
+            save_optimized_jpeg(dimg, ddest, QUALITY_DETAIL)
+            generated.append((ddest, dimg.size))
 
     # Cover = pagina 1 (misma imagen optimizada, copia)
     cover_src = images_dir / "page_001.jpg"
@@ -120,6 +139,8 @@ def main():
                         help="Mostrar que se generaria sin escribir archivos")
     parser.add_argument("--quality", type=int, default=QUALITY,
                         help=f"Calidad JPEG (default {QUALITY})")
+    parser.add_argument("--no-detail", action="store_true",
+                        help="No generar version de detalle (lupa)")
     args = parser.parse_args()
 
     catalogs_dir = ROOT / "catalogs"
@@ -134,7 +155,7 @@ def main():
             print(f"[!] Ignorando {pdf.name}: sin mapeo")
             continue
         try:
-            generated = process_pdf(pdf, theme, args.dry_run, args.quality)
+            generated = process_pdf(pdf, theme, args.dry_run, args.quality, not args.no_detail)
             if not args.dry_run:
                 total_kb = sum(f.stat().st_size / 1024 for f, _ in generated)
                 avg_kb = total_kb / len(generated) if generated else 0
