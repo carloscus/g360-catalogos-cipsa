@@ -25,6 +25,10 @@ body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-s
 
 .thumbnails-btn { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--catalog-accent); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px var(--catalog-glow); z-index: 200; transition: all 0.2s; }
 .thumbnails-btn:hover { transform: scale(1.1); }
+.thumbs-hint { position: fixed; bottom: 96px; right: 24px; z-index: 201; display: flex; align-items: center; gap: 8px; background: rgba(22,27,34,0.97); border: 1px solid var(--catalog-accent); color: var(--text-primary); padding: 10px 14px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.4); opacity: 0; transform: translateY(8px); transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none; animation: hintPulse 2s ease-in-out infinite; }
+.thumbs-hint.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.thumbs-hint svg { flex-shrink: 0; }
+@keyframes hintPulse { 0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.4); } 50% { box-shadow: 0 4px 28px var(--catalog-glow), 0 0 14px var(--catalog-glow); } }
 .thumbnails-panel { position: fixed; bottom: 90px; right: 24px; width: 360px; max-width: calc(100vw - 32px); max-height: 420px; background: rgba(22,27,34,0.97); backdrop-filter: blur(16px); border: 1px solid rgba(139,148,158,0.2); border-radius: 16px; padding: 16px; z-index: 200; display: none; overflow-y: auto; }
 .thumbnails-panel.active { display: block; }
 .thumbnails-panel h4 { color: var(--text-primary); margin-bottom: 12px; font-size: 14px; }

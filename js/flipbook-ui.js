@@ -30,6 +30,13 @@ export async function initFlipbook({ theme }) {
 
   const bookEl = document.getElementById('book');
   const container = document.querySelector('.flipbook-container');
+
+  ['mousedown', 'mouseup', 'click'].forEach((evt) => {
+    bookEl.addEventListener(evt, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+  });
   const btnPrev = document.getElementById('btnPrev');
   const btnNext = document.getElementById('btnNext');
   const pageInput = document.getElementById('pageInput');
@@ -57,8 +64,20 @@ export async function initFlipbook({ theme }) {
     if (thumbsPanel.classList.contains('active')) updateThumbnails();
   });
 
+  const thumbsHint = document.getElementById('thumbsHint');
+  if (thumbsHint && !localStorage.getItem('catalog-thumbs-hint-seen')) {
+    localStorage.setItem('catalog-thumbs-hint-seen', '1');
+    setTimeout(() => thumbsHint.classList.add('show'), 1500);
+    thumbsHint.addEventListener('click', () => {
+      thumbsPanel.classList.add('active');
+      updateThumbnails();
+      thumbsHint.classList.remove('show');
+    });
+    setTimeout(() => thumbsHint.classList.remove('show'), 6500);
+  }
+
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.thumbnails-panel') && !e.target.closest('.thumbnails-btn')) {
+    if (!e.target.closest('.thumbnails-panel') && !e.target.closest('.thumbnails-btn') && !e.target.closest('.thumbs-hint')) {
       thumbsPanel.classList.remove('active');
     }
   });
