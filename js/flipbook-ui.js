@@ -297,8 +297,8 @@ export async function initFlipbook({ theme }) {
   function loadMagImage(pageNum) {
     if (magImage && magImage.page === pageNum) return;
     const padded = String(pageNum).padStart(3, '0');
-    const detail = `images/${theme}/detail/page_${padded}.jpg`;
-    const normal = `images/${theme}/page_${padded}.jpg`;
+    const detail = `images/${theme}/detail/page_${padded}.webp`;
+    const normal = `images/${theme}/page_${padded}.webp`;
     const probe = new Image();
     probe.onload = () => {
       magImage = { page: pageNum, naturalW: probe.naturalWidth, naturalH: probe.naturalHeight, src: detail };
@@ -649,7 +649,7 @@ export async function initFlipbook({ theme }) {
     pageFlip = new PageFlipConstructor(bookEl, settings);
     const imageUrls = [];
     for (let i = 1; i <= CONFIG.total_pages; i++) {
-      imageUrls.push(`images/${theme}/page_${String(i).padStart(3, '0')}.jpg`);
+      imageUrls.push(`images/${theme}/page_${String(i).padStart(3, '0')}.webp`);
     }
     pageFlip.loadFromImages(imageUrls);
     if (startPage > 0) pageFlip.turnToPage(startPage);
@@ -697,7 +697,7 @@ export async function initFlipbook({ theme }) {
         const link = document.createElement('link');
         link.rel = 'prefetch';
         link.as = 'image';
-        link.href = `images/${theme}/page_${String(next).padStart(3, '0')}.jpg`;
+        link.href = `images/${theme}/page_${String(next).padStart(3, '0')}.webp`;
         document.head.appendChild(link);
       }
     }
@@ -759,7 +759,7 @@ export async function initFlipbook({ theme }) {
       thumb.className = 'thumb-item';
       if (currentPage >= start && currentPage <= end) thumb.classList.add('active');
       const thumbImg = document.createElement('img');
-      thumbImg.src = `images/${theme}/page_${String(start).padStart(3, '0')}.jpg`;
+      thumbImg.src = `images/${theme}/page_${String(start).padStart(3, '0')}.webp`;
       thumbImg.alt = `Páginas ${start}-${end}`;
       thumbImg.loading = 'lazy';
       thumb.appendChild(thumbImg);

@@ -3,13 +3,13 @@
 Generador optimizado de paginas de catalogo desde PDF.
 
 Renderiza cada PDF de `catalogs/` a alta resolucion (suficiente para zoom 2x
-y pantallas retina), y lo guarda como JPEG optimizado en `images/{theme}/`.
+y pantallas retina), y lo guarda como WebP optimizado en `images/{theme}/`.
 
 Uso:
     python tools/generate_pages.py                     # Todos los catalogos
     python tools/generate_pages.py --only vinifan      # Solo un tema
     python tools/generate_pages.py --dry-run           # Solo muestra que haria
-    python tools/generate_pages.py --quality 85        # Ajustar calidad JPEG
+    python tools/generate_pages.py --quality 80        # Ajustar calidad WebP
 
 Requisitos: pip install pymupdf pillow
 """
@@ -48,8 +48,10 @@ WIDTH_PORTRAIT = 2000
 WIDTH_LANDSCAPE = 2600
 WIDTH_DETAIL = 2800  # version de detalle para la lupa (zoom profundo nitido)
 
-QUALITY = 85
-QUALITY_DETAIL = 82
+# Formato de salida
+EXT = "webp"
+QUALITY = 80
+QUALITY_DETAIL = 78
 
 
 def detect_orientation(rect):
@@ -76,15 +78,13 @@ def render_page(doc, index, scale):
     return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
 
 
-def save_optimized_jpeg(img, dest, quality=QUALITY):
-    """Guarda JPEG optimizado: progressive, 4:2:0, sin metadatos."""
+def save_optimized(dest, img, quality=QUALITY):
+    """Guarda imagen optimizada en WebP (lossy, method 4 balance velocidad/tamano)."""
     img.save(
         dest,
-        format="JPEG",
+        format="WEBP",
         quality=quality,
-        optimize=True,
-        progressive=True,
-        subsampling=2,  # 4:2:0 chroma
+        method=4,  # compression effort balanceado
     )
 
 
@@ -102,30 +102,30 @@ def process_pdf(pdf_path, theme, dry_run=False, quality=QUALITY, detail=True):
     generated = []
     for i in range(total):
         page_num = i + 1
-        dest = images_dir / f"page_{page_num:03d}.jpg"
+        dest = images_dir / f"page_{page_num:03d}.{EXT}"
         if dry_run:
-            print(f"  [dry-run] page_{page_num:03d}.jpg")
+            print(f"  [dry-run] page_{page_num:03d}.{EXT}")
             if detail:
-                print(f"  [dry-run] detail/page_{page_num:03d}.jpg")
+                print(f"  [dry-run] detail/page_{page_num:03d}.{EXT}")
             continue
         scale = compute_scale(doc[i].rect)
         img = render_page(doc, i, scale)
-        save_optimized_jpeg(img, dest, quality)
+        save_optimized(dest, img, quality)
         generated.append((dest, img.size))
 
         if detail:
             dscale = compute_detail_scale(doc[i].rect)
             dimg = render_page(doc, i, dscale)
-            ddest = detail_dir / f"page_{page_num:03d}.jpg"
-            save_optimized_jpeg(dimg, ddest, QUALITY_DETAIL)
+            ddest = detail_dir / f"page_{page_num:03d}.{EXT}"
+            save_optimized(ddest, dimg, QUALITY_DETAIL)
             generated.append((ddest, dimg.size))
 
     # Cover = pagina 1 (misma imagen optimizada, copia)
-    cover_src = images_dir / "page_001.jpg"
-    cover_dest = images_dir / "cover.jpg"
+    cover_src = images_dir / f"page_001.{EXT}"
+    cover_dest = images_dir / f"cover.{EXT}"
     if not dry_run and cover_src.exists():
         shutil.copy2(cover_src, cover_dest)
-        print("  cover.jpg <- page_001.jpg")
+        print(f"  cover.{EXT} <- page_001.{EXT}")
 
     doc.close()
     return generated
@@ -138,7 +138,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true",
                         help="Mostrar que se generaria sin escribir archivos")
     parser.add_argument("--quality", type=int, default=QUALITY,
-                        help=f"Calidad JPEG (default {QUALITY})")
+                        help=f"Calidad WebP (default {QUALITY})")
     parser.add_argument("--no-detail", action="store_true",
                         help="No generar version de detalle (lupa)")
     args = parser.parse_args()

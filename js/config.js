@@ -58,10 +58,11 @@ function detectOrientation(imageUrl) {
 }
 
 function getFlipbookConfig(theme, totalPages) {
-  const firstPage = `images/${theme}/page_001.jpg`;
+  const firstPage = `images/${theme}/page_001.webp`;
   return detectOrientation(firstPage).then((orientation) => ({
     ...FLIPBOOK_DEFAULTS, ...orientation
   }));
 }
 
 export { CATALOGS_CONFIG, FLIPBOOK_DEFAULTS, FLIPBOOK_DIMS, detectOrientation, getFlipbookConfig };
+

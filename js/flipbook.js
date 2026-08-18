@@ -25,7 +25,7 @@ class ImageFlipbook {
     // Generate image URLs
     const imageUrls = [];
     for (let i = 1; i <= this.totalPages; i++) {
-      imageUrls.push(`../../images/${this.theme}/page_${String(i).padStart(3, '0')}.jpg`);
+      imageUrls.push(`../../images/${this.theme}/page_${String(i).padStart(3, '0')}.webp`);
     }
     
     this.pageFlip.loadFromImages(imageUrls);
@@ -71,3 +71,4 @@ class ImageFlipbook {
 }
 
 export { ImageFlipbook };
+

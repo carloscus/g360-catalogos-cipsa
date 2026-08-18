@@ -160,10 +160,10 @@ g360-catalogos-CIPSA/
 │   └── flipbook-ui.js          # Lógica compartida: nav, zoom, miniaturas
 ├── images/
 │   ├── vinifan/                # Páginas del catálogo VINIFAN
-│   │   ├── cover.jpg
-│   │   ├── page_001.jpg ... page_072.jpg
+│   │   ├── cover.webp
+│   │   ├── page_001.webp ... page_072.webp
 │   │   └── detail/             # Versión 2800px para la lupa
-│   │       ├── page_001.jpg ... page_072.jpg
+│   │       ├── page_001.webp ... page_072.webp
 │   ├── viniball/               # Páginas del catálogo VINIBALL
 │   ├── representadas/          # Páginas del catálogo REPRESENTADAS
 │   ├── institucional/          # Páginas del catálogo INSTITUCIONAL
@@ -174,7 +174,8 @@ g360-catalogos-CIPSA/
 │       └── favicon.svg
 ├── catalogs/                   # PDFs fuente (NO versionados, ver .gitignore)
 ├── tools/
-│   └── generate_pages.py       # Generador de páginas optimizadas desde PDF
+│   ├── generate_pages.py       # Generador de páginas optimizadas desde PDF
+│   └── generate_pages.bat      # Run manual en Windows (Windows)
 └── test_all_catalogs.py        # Script de testing
 ```
 
@@ -193,37 +194,45 @@ python test_all_catalogs.py
 
 Las páginas del flipbook se generan desde los PDFs de `catalogs/` (que NO se suben al repo) usando un script local. Renderiza cada página a alta resolución para que el zoom 2x y pantallas retina se vean nítidos.
 
+### Formato
+
+Se usa **WebP q80** (lossy, `method=4`), que reduce el peso ~50% vs JPEG con calidad comparable. Compatible con todos los navegadores modernos.
+
 ### Requisitos
 
 ```bash
 pip install pymupdf pillow
 ```
 
-### Uso
+### Uso manual (Windows)
 
-```bash
+Doble click en `tools/generate_pages.bat` o desde consola:
+
+```bat
 # Generar/actualizar todos los catálogos
-python tools/generate_pages.py
+tools\generate_pages.bat
 
 # Solo un tema
-python tools/generate_pages.py --only vinifan
+tools\generate_pages.bat vinifan
+tools\generate_pages.bat viniball
 
-# Solo simular qué haría (sin escribir archivos)
-python tools/generate_pages.py --dry-run
-
-# Ajustar calidad JPEG (default 85)
-python tools/generate_pages.py --quality 80
+# Con Python directo
+python tools\generate_pages.py                     # todos
+python tools\generate_pages.py --only vinifan      # solo uno
+python tools\generate_pages.py --dry-run           # simular
+python tools\generate_pages.py --quality 80        # ajustar calidad WebP
 ```
+
+El `.bat` verifica Python y dependencias automáticamente.
 
 ### Especificaciones de salida
 
 | Orientación | Ancho objetivo | Tamaño estimado/pág |
 |-------------|---------------|---------------------|
-| Portrait | 2000px | ~400-650KB |
-| Landscape | 2600px | ~350-500KB |
+| Portrait | 2000px | ~200-300KB |
+| Landscape | 2600px | ~180-330KB |
 
-- JPEG optimizado: `progressive`, croma `4:2:0`, sin metadatos
-- `cover.jpg` se genera automáticamente desde la página 1
+- `cover.webp` se genera automáticamente desde la página 1
 - **`detail/`**: versión a 2800px por página para la lupa (zoom profundo nítido); usar `--no-detail` para omitir
 - Los PDFs permanecen excluidos del repo (`.gitignore` → `catalogs/*.pdf`)
 
