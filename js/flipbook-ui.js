@@ -299,22 +299,26 @@ export async function initFlipbook({ theme }) {
     const padded = String(pageNum).padStart(3, '0');
     const detail = `images/${theme}/detail/page_${padded}.webp`;
     const normal = `images/${theme}/page_${padded}.webp`;
-    const probe = new Image();
-    probe.onload = () => {
-      magImage = { page: pageNum, naturalW: probe.naturalWidth, naturalH: probe.naturalHeight, src: detail };
-      magnifierImg.src = detail;
+
+    // Precargar la imagen en un Image() y solo asignar src cuando este lista
+    // para evitar el parpadeo (el <img> ya la tiene en cache)
+    const pre = new Image();
+    pre.onload = () => {
+      magImage = { page: pageNum, naturalW: pre.naturalWidth, naturalH: pre.naturalHeight, src: pre.src };
+      magnifierImg.src = pre.src; // ya cacheada, sin flash
       applyMagnifierZoom(lastRX, lastRY);
     };
-    probe.onerror = () => {
-      const probe2 = new Image();
-      probe2.onload = () => {
-        magImage = { page: pageNum, naturalW: probe2.naturalWidth, naturalH: probe2.naturalHeight, src: normal };
-        magnifierImg.src = normal;
+    pre.onerror = () => {
+      // fallback a la pagina normal
+      const pre2 = new Image();
+      pre2.onload = () => {
+        magImage = { page: pageNum, naturalW: pre2.naturalWidth, naturalH: pre2.naturalHeight, src: pre2.src };
+        magnifierImg.src = pre2.src;
         applyMagnifierZoom(lastRX, lastRY);
       };
-      probe2.src = normal;
+      pre2.src = normal;
     };
-    probe.src = detail;
+    pre.src = detail;
   }
 
   function applyMagnifierZoom(rx, ry) {
