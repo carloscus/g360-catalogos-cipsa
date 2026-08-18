@@ -181,6 +181,33 @@ export async function initFlipbook({ theme }) {
 
   function isPageZoomed() { return pageZoom > 1; }
 
+  /* ── Arrastrar con mouse cuando está zoom (desktop pan) ── */
+  let panState = null;
+  bookEl.addEventListener('mousedown', (e) => {
+    if (!isPageZoomed()) return;
+    if (e.button !== 0) return;
+    if (e.target.closest('.toolbar') || e.target.closest('.magnifier')) return;
+    panState = { startX: e.clientX, startY: e.clientY, startTx: 0, startTy: 0 };
+    const t = bookEl.style.transform;
+    const m = t && t.match(/translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)/);
+    if (m) { panState.startTx = parseFloat(m[1]); panState.startTy = parseFloat(m[2]); }
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+
+  window.addEventListener('mousemove', (e) => {
+    if (!panState) return;
+    e.preventDefault();
+    const dx = e.clientX - panState.startX;
+    const dy = e.clientY - panState.startY;
+    const c = getPageZoomTransform();
+    applyPageZoom(c.scale, panState.startTx + dx, panState.startTy + dy);
+  }, true);
+
+  window.addEventListener('mouseup', () => {
+    panState = null;
+  });
+
   if (isTouchDevice) {
     // Pinch (2 dedos): zoom de página completa
     bookEl.addEventListener('touchstart', (e) => {
