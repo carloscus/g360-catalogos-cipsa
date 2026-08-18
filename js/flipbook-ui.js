@@ -5,7 +5,6 @@ import { trackView, trackPage, trackAction } from './analytics.js';
 const BLOCK_SIZE = 8;
 const DRAG_THRESHOLD = 6;
 const DBLCLICK_MS = 350;
-const MAG_LEVELS = [0.5, 0.75, 1]; // max 1 = resolución nativa (nunca upscale)
 
 export async function initFlipbook({ theme }) {
   const CONFIG = CATALOGS_CONFIG[theme];
@@ -43,21 +42,15 @@ export async function initFlipbook({ theme }) {
   const thumbsGrid = document.getElementById('thumbsGrid');
   const thumbsProgress = document.getElementById('thumbsProgress');
   const btnAudio = document.getElementById('btnAudio');
-  const btnMagnifier = document.getElementById('btnMagnifier');
   const pageSlider = document.getElementById('pageSlider');
   const btnFullscreen = document.getElementById('btnFullscreen');
   const btnShare = document.getElementById('btnShare');
   const btnIndex = document.getElementById('btnIndex');
   const indexPanel = document.getElementById('indexPanel');
   const indexList = document.getElementById('indexList');
-  const magnifier = document.getElementById('magnifier');
-  const magnifierImg = document.getElementById('magnifierImg');
-  const magnifierViewport = document.getElementById('magnifierViewport');
   const magLevel = document.getElementById('magLevel');
   const magZoomIn = document.getElementById('magZoomIn');
   const magZoomOut = document.getElementById('magZoomOut');
-  const magCapture = document.getElementById('magCapture');
-  const magClose = document.getElementById('magClose');
 
   pageTotal.textContent = `/ ${CONFIG.total_pages}`;
 
@@ -99,7 +92,6 @@ export async function initFlipbook({ theme }) {
   let dragOccurred = false;
 
   bookEl.addEventListener('mousedown', (e) => {
-    if (magVisible) return; // con la lupa activa no se arrastra la página
     e.preventDefault();
     e.stopPropagation();
     dragStart = { x: e.clientX, y: e.clientY, started: false };
@@ -108,8 +100,6 @@ export async function initFlipbook({ theme }) {
   let lastMouse = null;
   bookEl.addEventListener('mousemove', (e) => {
     lastMouse = { clientX: e.clientX, clientY: e.clientY };
-    if (magnifier && magVisible && magFollow) updateMagnifier(e);
-    if (magVisible) return; // con la lupa activa no se arrastra la página
     if (!dragStart) return;
     e.preventDefault();
     e.stopPropagation();
@@ -138,19 +128,7 @@ export async function initFlipbook({ theme }) {
 
   /* ── Rueda del mouse ── */
   bookEl.addEventListener('wheel', (e) => {
-    if (magVisible) {
-      // con la lupa activa: la rueda ajusta el zoom
-      e.preventDefault();
-      e.stopPropagation();
-      const delta = e.deltaY < 0 ? 1 : -1;
-      const next = Math.min(MAG_LEVELS.length - 1, Math.max(0, magLevelIdx + delta));
-      if (next !== magLevelIdx) {
-        magLevelIdx = next;
-        setMagLevelText();
-        if (magImage) applyMagnifierZoom(lastRX, lastRY);
-      }
-    } else if (pageFlip) {
-      // sin lupa: la rueda voltea la página (como las apps de catálogo)
+    if (pageFlip) {
       e.preventDefault();
       if (e.deltaY > 0) pageFlip.flipNext();
       else if (e.deltaY < 0) pageFlip.flipPrev();
@@ -261,272 +239,6 @@ export async function initFlipbook({ theme }) {
     });
   }
 
-  /* ── Doble-click: activar/cerrar lupa ── */
-  let lastClickTime = 0;
-  bookEl.addEventListener('click', (e) => {
-    if (dragOccurred) return;
-    const now = Date.now();
-    if (now - lastClickTime < DBLCLICK_MS) {
-      // sincronizar el recorte con la posicion del cursor al abrir
-      lastRX = 0.5;
-      lastRY = 0.5;
-      toggleMagnifier(e);
-      lastClickTime = 0;
-    } else {
-      lastClickTime = now;
-    }
-  });
-
-  /* ── Lupa (magnifier) ── */
-  let magLevelIdx = 0; // default 0.50x
-  let magVisible = false;
-  let magFollow = true; // sigue al cursor mientras true
-  let magPinned = false; // punto fijo al pin (click en el viewport)
-  let magImage = null;
-  let lastRX = 0.5;
-  let lastRY = 0.5;
-
-  function magZoom() { return MAG_LEVELS[magLevelIdx]; }
-
-  function setMagLevelText() {
-    const v = magZoom();
-    magLevel.textContent = `${parseFloat(v.toFixed(2))}x`;
-  }
-  setMagLevelText();
-
-  function loadMagImage(pageNum) {
-    if (magImage && magImage.page === pageNum) return;
-    const padded = String(pageNum).padStart(3, '0');
-    const detail = `images/${theme}/detail/page_${padded}.webp`;
-    const normal = `images/${theme}/page_${padded}.webp`;
-
-    // Precargar la imagen en un Image() y solo asignar src cuando este lista
-    // para evitar el parpadeo (el <img> ya la tiene en cache)
-    const pre = new Image();
-    pre.onload = () => {
-      magImage = { page: pageNum, naturalW: pre.naturalWidth, naturalH: pre.naturalHeight, src: pre.src };
-      magnifierImg.src = pre.src; // ya cacheada, sin flash
-      applyMagnifierZoom(lastRX, lastRY);
-    };
-    pre.onerror = () => {
-      // fallback a la pagina normal
-      const pre2 = new Image();
-      pre2.onload = () => {
-        magImage = { page: pageNum, naturalW: pre2.naturalWidth, naturalH: pre2.naturalHeight, src: pre2.src };
-        magnifierImg.src = pre2.src;
-        applyMagnifierZoom(lastRX, lastRY);
-      };
-      pre2.src = normal;
-    };
-    pre.src = detail;
-  }
-
-  function applyMagnifierZoom(rx, ry) {
-    if (!magImage) return;
-    const level = magZoom();
-    magnifierImg.style.width = `${magImage.naturalW * level}px`;
-    magnifierImg.style.height = `${magImage.naturalH * level}px`;
-    const mw = magnifierViewport.clientWidth;
-    const mh = magnifierViewport.clientHeight;
-    magnifierImg.style.left = `${-(rx * magImage.naturalW * level) + mw / 2}px`;
-    magnifierImg.style.top = `${-(ry * magImage.naturalH * level) + mh / 2}px`;
-  }
-
-  function showMagnifier() {
-    magnifier.style.display = 'block';
-    magVisible = true;
-    if (btnMagnifier) btnMagnifier.classList.add('active');
-  }
-
-  function hideMagnifier() {
-    magnifier.style.display = 'none';
-    magVisible = false;
-    magPinned = false;
-    magFollow = true;
-    if (btnMagnifier) btnMagnifier.classList.remove('active');
-  }
-
-  function centerMagnifierOn(e) {
-    if (!e) return;
-    // centrar la lupa sobre el cursor (el punto de inspeccion queda al centro)
-    const mx = e.clientX - magnifier.offsetWidth / 2;
-    const my = e.clientY - magnifier.offsetHeight / 2;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const mw = magnifier.offsetWidth;
-    const mh = magnifier.offsetHeight;
-    magnifier.style.left = `${Math.max(0, Math.min(mx, vw - mw))}px`;
-    magnifier.style.top = `${Math.max(0, Math.min(my, vh - mh))}px`;
-  }
-
-  function toggleMagnifier(e) {
-    if (magVisible) {
-      hideMagnifier();
-      return;
-    }
-    if (pageFlip) loadMagImage(pageFlip.getCurrentPageIndex() + 1);
-    showMagnifier();
-    if (e) {
-      centerMagnifierOn(e);
-    } else if (lastMouse) {
-      centerMagnifierOn(lastMouse);
-    } else {
-      // centrar en pantalla si no hay referencia de cursor
-      magnifier.style.left = `${(window.innerWidth - magnifier.offsetWidth) / 2}px`;
-      magnifier.style.top = `${(window.innerHeight - magnifier.offsetHeight) / 2}px`;
-    }
-  }
-
-  if (btnMagnifier) {
-    btnMagnifier.addEventListener('click', () => {
-      toggleMagnifier();
-      audioSystem.play('hover');
-    });
-  }
-  magZoomIn.addEventListener('click', () => {
-    if (isTouchDevice) {
-      const c = getPageZoomTransform();
-      applyPageZoom(c.scale + 0.25, c.tx, c.ty);
-      magLevel.textContent = `${parseFloat((c.scale + 0.25).toFixed(2))}x`;
-      audioSystem.play('hover');
-      return;
-    }
-    magLevelIdx = Math.min(MAG_LEVELS.length - 1, magLevelIdx + 1);
-    setMagLevelText();
-    if (magImage) applyMagnifierZoom(lastRX, lastRY);
-    audioSystem.play('hover');
-  });
-  magZoomOut.addEventListener('click', () => {
-    if (isTouchDevice) {
-      const c = getPageZoomTransform();
-      if (c.scale <= 1.05) { resetPageZoom(); magLevel.textContent = '1x'; audioSystem.play('hover'); return; }
-      const next = c.scale - 0.25;
-      applyPageZoom(next, c.tx, c.ty);
-      magLevel.textContent = `${parseFloat(next.toFixed(2))}x`;
-      audioSystem.play('hover');
-      return;
-    }
-    magLevelIdx = Math.max(0, magLevelIdx - 1);
-    setMagLevelText();
-    if (magImage) applyMagnifierZoom(lastRX, lastRY);
-    audioSystem.play('hover');
-  });
-  magClose.addEventListener('click', () => hideMagnifier());
-
-  magCapture.addEventListener('click', () => {
-    captureMagnifier();
-    audioSystem.play('hover');
-  });
-
-  magnifierViewport.addEventListener('click', (e) => {
-    e.stopPropagation();
-    magPinned = !magPinned;
-    magFollow = !magPinned;
-    magnifier.classList.toggle('pinned', magPinned);
-    if (!magPinned) { // al despinear, volver a seguir al cursor
-      magPan = null;
-      magnifier.classList.remove('panning');
-      if (lastMouse) updateMagnifier(lastMouse);
-    }
-  });
-
-  // Arrastrar el contenido dentro de la lupa cuando está fijada (pan)
-  let magPan = null;
-
-  function panStart(x, y) {
-    if (!magPinned) return;
-    magPan = { x, y };
-    magnifier.classList.add('panning');
-  }
-  function panMove(x, y) {
-    if (!magPan || !magImage) return;
-    const dx = x - magPan.x;
-    const dy = y - magPan.y;
-    magPan = { x, y };
-    const level = magZoom();
-    const vw = magnifierViewport.clientWidth;
-    const vh = magnifierViewport.clientHeight;
-    const totalW = magImage.naturalW * level;
-    const totalH = magImage.naturalH * level;
-    let left = parseFloat(magnifierImg.style.left) || 0;
-    let top = parseFloat(magnifierImg.style.top) || 0;
-    left += dx;
-    top += dy;
-    const maxLeft = 0;
-    const minLeft = -(totalW - vw);
-    const maxTop = 0;
-    const minTop = -(totalH - vh);
-    left = Math.max(minLeft, Math.min(maxLeft, left));
-    top = Math.max(minTop, Math.min(maxTop, top));
-    magnifierImg.style.left = `${left}px`;
-    magnifierImg.style.top = `${top}px`;
-    lastRX = (left * -1) / totalW;
-    lastRY = (top * -1) / totalH;
-  }
-  function panEnd() {
-    magPan = null;
-    magnifier.classList.remove('panning');
-  }
-
-  magnifierViewport.addEventListener('mousedown', (e) => {
-    if (!magPinned) return;
-    e.preventDefault();
-    e.stopPropagation();
-    panStart(e.clientX, e.clientY);
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (!magPan) return;
-    e.preventDefault();
-    panMove(e.clientX, e.clientY);
-  });
-  window.addEventListener('mouseup', panEnd);
-
-  // Touch: pan táctil dentro de la lupa fijada
-  magnifierViewport.addEventListener('touchstart', (e) => {
-    if (!magPinned || e.touches.length !== 1) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const t = e.touches[0];
-    panStart(t.clientX, t.clientY);
-  }, { passive: false });
-  magnifierViewport.addEventListener('touchmove', (e) => {
-    if (!magPan || e.touches.length !== 1) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const t = e.touches[0];
-    panMove(t.clientX, t.clientY);
-  }, { passive: false });
-  magnifierViewport.addEventListener('touchend', panEnd);
-
-  function captureMagnifier() {
-    if (!magImage) return;
-    const level = magZoom();
-    const scale = 2; // resolucion 2x para nitidez
-    const vw = magnifierViewport.clientWidth;
-    const vh = magnifierViewport.clientHeight;
-    const canvas = document.createElement('canvas');
-    canvas.width = vw * scale;
-    canvas.height = vh * scale;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // Posicion de la imagen en px CSS (escala mostrada = level)
-    const leftPx = parseFloat(magnifierImg.style.left) || 0;
-    const topPx = parseFloat(magnifierImg.style.top) || 0;
-    // Convertir a coordenadas de la imagen natural (drawImage usa px intrínsecos)
-    const ix = (leftPx * -1) / level;
-    const iy = (topPx * -1) / level;
-    const iw = vw / level;   // region visible en px naturales
-    const ih = vh / level;
-    ctx.drawImage(magnifierImg, ix, iy, iw, ih, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = `${theme}-pagina-${magImage.page}-zoom-${magZoom()}x.png`;
-    a.click();
-    trackAction(theme, 'capture', magImage.page);
-  }
-
   if (btnFullscreen) {
     btnFullscreen.addEventListener('click', () => {
       if (document.fullscreenElement) {
@@ -540,6 +252,25 @@ export async function initFlipbook({ theme }) {
     });
     document.addEventListener('fullscreenchange', () => {
       btnFullscreen.classList.toggle('active', !!document.fullscreenElement);
+    });
+  }
+
+  if (magZoomIn) {
+    magZoomIn.addEventListener('click', () => {
+      const c = getPageZoomTransform();
+      applyPageZoom(c.scale + 0.25, c.tx, c.ty);
+      magLevel.textContent = `${parseFloat(pageZoom.toFixed(2))}x`;
+      audioSystem.play('hover');
+    });
+  }
+  if (magZoomOut) {
+    magZoomOut.addEventListener('click', () => {
+      if (pageZoom <= 1.05) { resetPageZoom(); magLevel.textContent = '1x'; audioSystem.play('hover'); return; }
+      const c = getPageZoomTransform();
+      const next = c.scale - 0.25;
+      applyPageZoom(next, c.tx, c.ty);
+      magLevel.textContent = `${parseFloat(pageZoom.toFixed(2))}x`;
+      audioSystem.play('hover');
     });
   }
 
@@ -585,54 +316,6 @@ export async function initFlipbook({ theme }) {
     });
   }
 
-  function updateMagnifier(e) {
-    if (!pageFlip) return;
-    const bounds = pageFlip.getBoundsRect();
-    const orientation = pageFlip.getOrientation();
-    const currentIdx = pageFlip.getCurrentPageIndex();
-    const total = CONFIG.total_pages;
-    const isCover = currentIdx === 0;
-    const isLast = currentIdx === total - 1;
-    const singleSpread = orientation === 'portrait' || isCover || isLast;
-
-    const pageWidth = bounds.pageWidth;
-    const relX = e.clientX - bounds.left;
-    let pageIdx = currentIdx;
-    let rx;
-
-    if (singleSpread) {
-      rx = relX / pageWidth;
-    } else {
-      const leftSide = relX < pageWidth;
-      pageIdx = leftSide ? currentIdx : currentIdx + 1;
-      rx = (relX - (leftSide ? 0 : pageWidth)) / pageWidth;
-    }
-    const ry = (e.clientY - bounds.top) / bounds.height;
-    lastRX = Math.max(0, Math.min(1, rx));
-    lastRY = Math.max(0, Math.min(1, ry));
-
-    loadMagImage(pageIdx + 1);
-    applyMagnifierZoom(lastRX, lastRY);
-
-    // centrar la lupa sobre el cursor
-    const mx = e.clientX - magnifier.offsetWidth / 2;
-    const my = e.clientY - magnifier.offsetHeight / 2;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const mw = magnifier.offsetWidth;
-    const mh = magnifier.offsetHeight;
-    magnifier.style.left = `${Math.max(0, Math.min(mx, vw - mw))}px`;
-    magnifier.style.top = `${Math.max(0, Math.min(my, vh - mh))}px`;
-  }
-
-  bookEl.addEventListener('mouseenter', () => {
-    if (magVisible && magFollow) magnifier.style.display = 'block';
-  });
-  bookEl.addEventListener('mouseleave', () => {
-    // solo ocultar si sigue al cursor; si esta fijada (pinned) permanece visible
-    if (magVisible && magFollow) magnifier.style.display = 'none';
-  });
-
   /* ── Flipbook ── */
   async function buildFlipbook() {
     let startPage = PAGE_PARAM ? parseInt(PAGE_PARAM, 10) - 1 : 0;
@@ -677,20 +360,6 @@ export async function initFlipbook({ theme }) {
       suppressFlipSound = false;
       updateThumbnails();
       resetPageZoom(); // al cambiar de página, volver a zoom 1x
-      if (magVisible) {
-        if (magFollow && lastMouse) {
-          // sigue al cursor: re-sincronizar con la posicion actual
-          loadMagImage(pageFlip.getCurrentPageIndex() + 1);
-          updateMagnifier(lastMouse);
-        } else {
-          // fijada: resetear al centro de la nueva pagina para no quedar
-          // en una zona arbitraria de la pagina anterior
-          lastRX = 0.5;
-          lastRY = 0.5;
-          loadMagImage(pageFlip.getCurrentPageIndex() + 1);
-          applyMagnifierZoom(lastRX, lastRY);
-        }
-      }
       trackPage(theme, page);
       prefetchNext(page);
     });
@@ -739,12 +408,11 @@ export async function initFlipbook({ theme }) {
       if (e.key === 'ArrowRight') pageFlip.flipNext();
       if (e.key === 'Home') jumpToPage(1);
       if (e.key === 'End') jumpToPage(CONFIG.total_pages);
-      if (e.key === 'Escape') {
-        thumbsPanel.classList.remove('active');
-        if (indexPanel) indexPanel.classList.remove('active');
-        hideMagnifier();
-        if (document.fullscreenElement) document.exitFullscreen();
-      }
+       if (e.key === 'Escape') {
+         thumbsPanel.classList.remove('active');
+         if (indexPanel) indexPanel.classList.remove('active');
+         if (document.fullscreenElement) document.exitFullscreen();
+       }
     });
 
     updateThumbnails();
