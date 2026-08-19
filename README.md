@@ -1,12 +1,35 @@
 # g360-catalogos-CIPSA
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="logotypes/logo-g360-light.svg">
+  <img alt="G360 Catalogos CIPSA" height="64" src="logotypes/logo-g360-dark.svg">
+</picture>
+
 > Estante digital de catálogos CIPSA con efecto flipbook interactivo
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue)](https://github.com)
+[![Skill](https://img.shields.io/badge/skill-cipsa-green)](https://github.com/carloscus/g360-cli)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/es/docs/Web/HTML)
-[![G360](https://img.shields.io/badge/G360-Ecosystem-00d084)](https://github.com/carloscus/G360-ecosystem)
 
----
+## ¿Cómo está organizado el proyecto?
+
+```mermaid
+flowchart TD
+    USER["Usuario<br/>Navega entre catálogos"]
+    LIBRARY["index.html<br/>Biblioteca principal"]
+    CATALOGS["catalogo-N.html<br/>5 catálogos interactivos"]
+    FLIPBOOK["StPageFlip v2.0.7<br/>Efecto flipbook"]
+    IMAGES["images/<br/>Vinifan · Viniball · Representadas<br/>Institucional · Industriales"]
+    TOOLS["tools/generate_pages.py<br/>Generador desde PDF"]
+    PDFS["catalogs/*.pdf<br/>PDFs fuente"]
+
+    USER --> LIBRARY
+    USER --> CATALOGS
+    CATALOGS --> FLIPBOOK
+    FLIPBOOK --> IMAGES
+    TOOLS --> IMAGES
+    PDFS --> TOOLS
+```
 
 ## Tabla de Contenidos
 
@@ -17,13 +40,11 @@
 - [Instalación](#instalación)
 - [Uso](#uso)
 - [Estructura](#estructura)
-- [URLs](#urls)
-- [Testing](#testing)
+- [Generación de Imágenes](#generación-de-imágenes-desde-pdf)
 - [Deploy](#deploy)
 - [Actualización Anual](#actualización-anual)
-- [Contribución](#contribución)
-- [Licencia](#licencia)
-- [Familia G360](#familia-g360)
+- [Analytics](#analytics)
+- [Ecosistema G360](#ecosistema-g360)
 
 ---
 
@@ -31,39 +52,33 @@
 
 **g360-catalogos-CIPSA** es un estante digital que presenta los catálogos de productos de CIPSA con un efecto flipbook interactivo. Los usuarios pueden navegar entre catálogos, hojear páginas con animación de volado, y acceder a información detallada de cada línea de productos.
 
-- **Tipo**: Web App estática (HTML/CSS/JS vanilla)
-- **Propósito**: Presentación de catálogos de productos CIPSA
-- **Deploy**: GitHub Pages
+**Tipo**: Web App estática (HTML/CSS/JS vanilla)  
+**Uso**: Presentación de catálogos de productos CIPSA  
+**Deploy**: GitHub Pages
 
 ---
 
 ## Características
 
-- **Regleta horizontal**: Navegación visual entre catálogos con scroll horizontal
 - **Flipbook interactivo**: Efecto de página voladora con StPageFlip
 - **Detección automática de orientación**: Se adapta a imágenes portrait o landscape
 - **Miniaturas con progreso**: Panel emergente con bloques de páginas y barra de progreso
-- **Salto directo a página**: Input numérico para escribir la página destino + Enter
-- **Slider de navegación**: Barra arrastrable en la toolbar para recorrer páginas
+- **Salto directo a página**: Input numérico para escribir la página destino
+- **Slider de navegación**: Barra arrastrable en la toolbar
 - **Toolbar inferior**: Acceso rápido a navegación, lupa, miniaturas, pantalla completa y sonido
-- **Pantalla completa**: Botón `⛶` para ver el catálogo a pantalla completa (Fullscreen API)
-- **Lupa de ampliación**: Ventana de inspección compacta (~1/4 de la hoja) con zoom inicial 0.50x; botón `🔍` o doble click para activar, controles `+`/`-` en la toolbar, rueda del mouse para zoom, click en la ventana para fijar posición (pin) y arrastrar para desplazar el detalle (pan). Al navegar re-sincroniza el recorte con la posición del cursor (o al centro si está fijada)
-- **Captura para pedido**: Botón `📷` en la lupa descarga la región ampliada como PNG a 2x (recorte correcto en coordenadas de la imagen nativa) para adjuntarla al pedido
-- **Flip por arrastre**: Arrastrar la página para voltear (clic simple desactivado; con la lupa activa el arrastre de página se suspende para inspeccionar sin voltear)
-- **Rueda del mouse**: Sin lupa voltea páginas; con lupa activa ajusta el zoom
-- **Zoom de página completa (móvil)**: Pinch (2 dedos) para acercar la página entera, 1 dedo para desplazarla (pan), botones `+`/`-` de la toolbar; al navegar vuelve a 1x. El swipe de 1 dedo sin zoom pasa la página.
-- **Pantalla completa**: Aprovecha todo el viewport (`:fullscreen` elimina márgenes y amplía el libro)
-- **Responsive móvil**: Libro centrado y escalado con `min()` para usar todo el alto disponible; pan táctil en la lupa fijada
-- **Índice / secciones**: Panel `☰` con acceso directo a secciones del catálogo definidas en `config.js`
-- **Compartir página**: Botón `🔗` copia la URL con `?page=N` para enlazar una página exacta
-- **Persistencia de lectura**: Recuerda la última página leída por catálogo (`localStorage`) y continúa ahí
-- **Marca de agua**: Logo CIPSA con año reactivo superpuesto sutilmente
-- **Precarga inteligente**: Prefetch de la página siguiente para navegación más fluida
-- **Analytics preparado**: Capa de eventos (`js/analytics.js`) lista para GA4/GoatCounter; ver sección [Analytics](#analytics)
-- **Título reactivo al año**: El título, hero y footer se actualizan automáticamente con el año calendario (`2026 - 2027`)
-- **Sonidos**: Efectos de audio configurables (flip, hover, jump) con toggle mute
-- **Responsive**: Desktop, tablet y móvil con breakpoints en 1024px, 768px y 480px
-- **URLs compartibles**: Cada catálogo tiene URL directa con soporte de página específica (`?page=15`)
+- **Pantalla completa**: Fullscreen API sin márgenes
+- **Lupa de ampliación**: Ventana de inspección con zoom, pin y pan
+- **Captura para pedido**: Botón `📷` descarga la región ampliada como PNG a 2x
+- **Flip por arrastre**: Arrastrar la página para voltear
+- **Zoom de página completa (móvil)**: Pinch (2 dedos) para acercar
+- **Índice / secciones**: Panel `☰` con acceso directo a secciones
+- **Compartir página**: Botón `🔗` copia URL con `?page=N`
+- **Persistencia de lectura**: Recuerda última página leída por catálogo
+- **Marca de agua**: Logo CIPSA con año reactivo
+- **Precarga inteligente**: Prefetch de la página siguiente
+- **Sonidos**: Efectos de audio configurables (flip, hover, jump)
+- **Responsive**: Desktop, tablet y móvil (breakpoints: 1024px, 768px, 480px)
+- **URLs compartibles**: Cada catálogo tiene URL directa con soporte de página específica
 - **Fondos personalizados**: Cada catálogo tiene su paleta de colores y acentos
 - **Identidad G360**: Branding consistente con `g360-signature`
 
@@ -101,10 +116,8 @@
 ### Pasos
 
 ```bash
-# Clonar repositorio
 git clone https://github.com/carloscus/g360-catalogos-cipsa.git
 cd g360-catalogos-cipsa
-
 # No necesita instalación de dependencias
 ```
 
@@ -120,9 +133,6 @@ python -m http.server 5174
 
 # Con Node.js
 npx serve .
-
-# Abrir en navegador
-open http://localhost:5174
 ```
 
 ### Estructura de URLs
@@ -160,32 +170,15 @@ g360-catalogos-CIPSA/
 │   └── flipbook-ui.js          # Lógica compartida: nav, zoom, miniaturas
 ├── images/
 │   ├── vinifan/                # Páginas del catálogo VINIFAN
-│   │   ├── cover.webp
-│   │   ├── page_001.webp ... page_072.webp
-│   │   └── detail/             # Versión 2800px para la lupa
-│   │       ├── page_001.webp ... page_072.webp
 │   ├── viniball/               # Páginas del catálogo VINIBALL
 │   ├── representadas/          # Páginas del catálogo REPRESENTADAS
 │   ├── institucional/          # Páginas del catálogo INSTITUCIONAL
 │   └── industriales/           # Páginas del catálogo INDUSTRIALES
-├── assets/
-│   └── brand/                  # Logos y favicons CIPSA
-│       ├── logo-cipsa.svg
-│       └── favicon.svg
-├── catalogs/                   # PDFs fuente (NO versionados, ver .gitignore)
-├── tools/
-│   ├── generate_pages.py       # Generador de páginas optimizadas desde PDF
-│   └── generate_pages.bat      # Run manual en Windows (Windows)
-└── test_all_catalogs.py        # Script de testing
-```
-
----
-
-## Testing
-
-```bash
-# Ejecutar test de todos los catálogos
-python test_all_catalogs.py
+├── assets/brand/               # Logos y favicons CIPSA
+├── catalogs/                   # PDFs fuente (NO versionados)
+└── tools/
+    ├── generate_pages.py       # Generador desde PDF
+    └── generate_pages.bat      # Run manual en Windows
 ```
 
 ---
@@ -204,9 +197,7 @@ Se usa **WebP q80** (lossy, `method=4`), que reduce el peso ~50% vs JPEG con cal
 pip install pymupdf pillow
 ```
 
-### Uso manual (Windows)
-
-Doble click en `tools/generate_pages.bat` o desde consola:
+### Uso manual
 
 ```bat
 # Generar/actualizar todos los catálogos
@@ -214,16 +205,10 @@ tools\generate_pages.bat
 
 # Solo un tema
 tools\generate_pages.bat vinifan
-tools\generate_pages.bat viniball
 
 # Con Python directo
-python tools\generate_pages.py                     # todos
-python tools\generate_pages.py --only vinifan      # solo uno
-python tools\generate_pages.py --dry-run           # simular
-python tools\generate_pages.py --quality 80        # ajustar calidad WebP
+python tools\generate_pages.py --only vinifan --dry-run
 ```
-
-El `.bat` verifica Python y dependencias automáticamente.
 
 ### Especificaciones de salida
 
@@ -233,7 +218,7 @@ El `.bat` verifica Python y dependencias automáticamente.
 | Landscape | 2600px | ~180-330KB |
 
 - `cover.webp` se genera automáticamente desde la página 1
-- **`detail/`**: versión a 2800px por página para la lupa (zoom profundo nítido); usar `--no-detail` para omitir
+- **`detail/`**: versión a 2800px por página para la lupa (zoom profundo nítido)
 - Los PDFs permanecen excluidos del repo (`.gitignore` → `catalogs/*.pdf`)
 
 ---
@@ -252,16 +237,16 @@ El `.bat` verifica Python y dependencias automáticamente.
 
 ## Actualización Anual
 
-1. Reemplazar las imágenes en `images/{tema}/page_*.jpg` manteniendo los nombres
+1. Reemplazar las imágenes en `images/{tema}/page_*.webp` manteniendo los nombres
 2. Actualizar `total_pages` en `js/config.js` si cambia la cantidad de páginas
-3. Actualizar las portadas en `images/{tema}/cover.jpg`
+3. Actualizar las portadas en `images/{tema}/cover.webp`
 4. Commit y push
 
 ---
 
 ## Analytics
 
-GitHub Pages sirve solo archivos estáticos (sin backend), por lo que el analytics se ejecuta en el navegador y envía eventos a un servicio externo. El proyecto incluye una **capa de eventos** en `js/analytics.js` lista para conectar:
+El proyecto incluye una **capa de eventos** en `js/analytics.js` lista para conectar:
 
 ### Eventos registrados
 
@@ -273,49 +258,33 @@ GitHub Pages sirve solo archivos estáticos (sin backend), por lo que el analyti
 | `share` | Al compartir una página |
 | `index_jump` | Salto por índice |
 
-### Conectar un proveedor
+**Por defecto no envía datos a terceros** (solo consola si activas `?analytics=1`).
 
-**Por defecto no envía datos a terceros** (solo consola si activas `?analytics=1`). Para activarlo:
-
-1. En `js/analytics.js` edita `DEFAULT_SERVICE` (`'ga4'` o `'goatcounter'`) y completa el ID/endpoint
+Para activarlo:
+1. En `js/analytics.js` edita `DEFAULT_SERVICE` y completa el ID
 2. O activa por URL: `catalogo-1.html?analytics=1`
-
-**GA4**: carga `gtag.js` en el `<head>` y la capa llama `gtag('event', ...)`.
-**GoatCounter** (gratis, sin cookies): apunta `goatcounterEndpoint` a tu sitio y la capa envía `POST` con `keepalive`.
 
 ---
 
-## Contribución
+## Ecosistema G360
 
-1. Fork el repositorio
-2. Crea una rama (`git checkout -b feature/nueva-funcion`)
-3. Commit cambios (`git commit -m 'Agregar función'`)
-4. Push a la rama (`git push origin feature/nueva-funcion`)
-5. Abre un Pull Request
+Este proyecto forma parte del ecosistema **G360** para apoyo CRM y gestión de datos en CIPSA.
+
+### Herramientas Relacionadas
+
+- **[g360-cli](https://github.com/carloscus/g360-cli)** — CLI para automatización de tareas
+- **[g360-order-xlsx](https://github.com/carloscus/g360-order-xlsx)** — Gestión de pedidos
+- **[g360-signature](https://github.com/carloscus/g360-signature)** — Generador de firmas
+- **[g360-signature-creator](https://github.com/carloscus/g360-signature-creator)** — Generador de firmas con interfaz web
+- **[g360-day-calculator](https://github.com/carloscus/g360-day-calculator)** — Calculadora de días laborables
 
 ---
 
 ## Licencia
 
-MIT License - ver [LICENSE](LICENSE) para más detalles.
+MIT License — ver [LICENSE](LICENSE) para más detalles.
 
 ---
 
-## Familia G360
-
-Este proyecto forma parte de la familia de microherramientas **G360** para apoyo CRM y gestión de datos en escritorio, enfocadas en áreas como ventas, finanzas y logística.
-
-### Herramientas Relacionadas
-
-- [g360-cli](https://github.com/carloscus/g360-cli) - CLI para automatización de tareas
-- [g360-order-xlsx](https://github.com/carloscus/g360-order-xlsx) - Gestión de pedidos
-- [g360-signature](https://github.com/carloscus/g360-signature) - Generador de firmas
-- [g360-discount-calculator](https://github.com/carloscus/g360-discount-calculator) - Calculadora de descuentos
-
----
-
-**Marca**: G360
-**Isotipo**: 3 puntos verticales paralelos (gris-verde-gris) + chevron `>`
-**Autor**: Carlos Cusi
-**Desarrollo**: Con asistencia de herramientas de código IA (Vibe Code)
-**Powered by**: [g360-signature](https://github.com/carloscus/g360-signature)
+**Marca**: G360 · Isotipo: 3 puntos verticales (gris-verde-gris) + chevron `>`  
+**Signature**: G360 by ccusi · **Powered by**: [g360-signature](https://github.com/carloscus/g360-signature)
